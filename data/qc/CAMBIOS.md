@@ -277,3 +277,16 @@ para el cron. El brazo entero habría estado apagado desde el lunes.
 **Regla que sale de acá:** `active` en la API **no** significa "parseado". Antes de dar por vivo un
 workflow, `yaml.safe_load` sobre el archivo y comparar el `name` que devuelve la API contra el `name:`
 del YAML. Si coinciden con la ruta, está roto.
+
+### 21. La hipótesis "en GitHub Actions sí hay `WordBoundary`" quedó refutada
+**Motivo:** DIA-1 afirmaba que el karaoke en modo `proporcional` era un límite **de esta PC**, y que
+en el runner de Actions edge-tts normalmente entrega las marcas de palabra y la sincronía pasa a ser
+medida. Nunca se había probado.
+**Efecto:** se corrió el brazo en la nube (run 40619491592, checkout limpio, `--quality delivery` por
+default del form, voz regenerada ahí) y el `pipeline_report.json` del artifact dice
+`"sync_mode": "proporcional"`. No es un problema local: edge-tts no entrega `WordBoundary` en ninguna
+de las dos máquinas. Se borró la promesa de la guía y quedó escrita la refutación.
+**Lo que sí cambió entre máquinas:** `|Δ²scale|` medido **0,00383** en local contra **0,00541** en CI.
+Distintas duraciones de audio por beat mueven los tiempos de viaje de cámara. Los dos están bajo el
+piso de 0,008, y el hecho de que la corrida de la nube **no** heredara el número de la PC es
+exactamente lo que se quiere: el manifiesto se recalcula, no se copia.

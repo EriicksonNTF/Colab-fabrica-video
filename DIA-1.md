@@ -140,8 +140,14 @@ distintas del token de GitHub en Colab, o dejar que un bot toque tus cuentas (§
 Medido sobre el master real de esta carpeta (`data/escenas/S001-parpado-temblor/master_final.mp4`),
 corrida del 27-oct-2026 00:31, calidad `delivery`:
 
+- ✅ **El brazo ya corrió solo en la nube.** Run
+  [`40619491592`](https://github.com/EriicksonNTF/Colab-fabrica-video/actions/runs/40619491592),
+  27-oct-2026, desde un checkout limpio del repo público: 9 pasos en verde, **3 min 54 s**, y el
+  artifact trajo `master_final.mp4` de 22,87 MB con **QC `PASA` y 0 fallas**. O sea: no depende de
+  esta PC ni de los archivos que hay acá.
 - ✅ **El brazo corrió de punta a punta y el QC-AV dio `PASA` con 0 fallas.** 53,97 s · 1080×1920 ·
-  30 fps · yuv420p · 23,6 MB (techo del artifact: 50 MB) · −14,86 LUFS / pico −1,93 dBTP.
+  30 fps · yuv420p · 23,6 MB local / 22,9 MB en CI (techo del artifact: 50 MB) · −14,86 LUFS local /
+  −14,87 en CI, pico −1,93 / −1,88 dBTP.
 - ✅ **Cámara continua verificada en el píxel, no declarada**: 810 fotogramas medidos en streaming,
   **0** casi vacíos, **0** congelados, `|Δ²scale|` máximo **0,00383** (piso 0,008) y **10 de 10**
   estaciones derivadas del shot-list. Los 10 beats tienen contenido real dentro de la caja que cada
@@ -154,11 +160,13 @@ corrida del 27-oct-2026 00:31, calidad `delivery`:
 - ⚠️ El `factset` de S001 tiene **2 claims (C3 y C4) sin URL capturada**: el pipeline los avisa como
   advertencia y no bloquea el render, pero **antes de publicar** esos dos hay que confirmarles la
   ficha o bajarlas del guion (la celda 3 del notebook lo hace con `--urls`).
-- ⚠️ En esta PC, edge-tts devolvió el audio pero **sin marcas `WordBoundary`**, así que el karaoke usó
-  el modo `proporcional`: cada palabra recibe su parte **de la duración real de ese beat de audio**
-  (los tiempos no son de guion, son de la voz que se oyó), pero el corte entre palabra y palabra está
-  **estimado por cantidad de caracteres**, no medido. Se ve sincronizado; en GitHub Actions
-  normalmente se consiguen las `WordBoundary` y ahí es exacto.
+- ⚠️ edge-tts devuelve el audio pero **sin marcas `WordBoundary`**, así que el karaoke usa el modo
+  `proporcional`: cada palabra recibe su parte **de la duración real de ese beat de audio** (los
+  tiempos no son de guion, son de la voz que se oyó), pero el corte entre palabra y palabra está
+  **estimado por cantidad de caracteres**, no medido. **Esto pasa igual en GitHub Actions**: la
+  corrida del 27-oct (run 40619491592) reportó `sync_mode: proporcional` desde el runner. Antes había
+  escrito acá que en la nube "normalmente se consiguen"; era una hipótesis y **quedó refutada**, así
+  que quedó borrada. Se ve sincronizado; si algún día se rompe, la causa es esta, no el comp.
 - ⚠️ Las `hora_sugerida` que escribe `run_pipeline.py` (12:40 / 13:10 / 11:30) vienen del §4.9 de la
   biblia y están en hora peninsular española. El plan de lanzamiento de Ticomental acordó **YouTube
   19:00 y el resto 20:00 CDMX**. Antes de publicar, chequeá esas horas contra tu plan; es una
