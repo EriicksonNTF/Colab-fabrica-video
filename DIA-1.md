@@ -91,7 +91,9 @@ El repo ya trae un guion completo y verificado: `S001-parpado-temblor`.
 3. Cuando termine (✔ verde): panel derecho **Artifacts** → `master-S001-parpado-temblor` →
    descargás un `.zip` con `master_final.mp4`, `hoja_contacto.jpg` y `pipeline_report.json`.
 4. Mirá el MP4 (60 s) y la hoja de contacto. Si el run quedó en rojo: abrí el log, bajá a la última
-   línea con `::error::`, y mirá `data/qc/` en la web de GitHub.
+   línea con `::error::`, y mirá `data/qc/{slug}-qcav.md` **dentro del zip del artifact** (el brazo no
+   sube el QC de vuelta al repo: corre con `contents: read`, así que en la web de GitHub vas a ver el
+   de la última corrida local, no el de hoy).
 
 **Activá las notificaciones por mail de GitHub** (Settings → Notifications → *Watch all activity*
 del repo) para enterarte si un día el cron falla sin que vos mires.

@@ -261,3 +261,19 @@ este afloje vuelve a ser peligroso.
 **Resultado medido (corrida `delivery`, 27-oct 00:31):** veredicto **PASA**, 10/10 beats, 0 fotogramas
 casi vacíos, 0 congelados, `|Δ²scale|` 0,00383, densidad de foco 4,5-20,4 %, cobertura media de cuadro
 3,1 %, −14,86 LUFS / −1,93 dBTP, 23,6 MB. `hyperframes lint`: 0 errores, 3 avisos de estilo.
+
+---
+
+## 2026-10-27 · el workflow estaba muerto y GitHub no avisaba
+
+**Motivo:** al subir el repo, `git ls-tree origin/main` mostraba los 31 archivos y la API devolvía el
+workflow en estado `active`, pero el `name` que reportaba GitHub era la **ruta del archivo** en vez de
+`tico-render`. Eso pasa cuando el YAML no parsea. `python -c "import yaml; yaml.safe_load(...)"` lo
+confirmó: **error de sintaxis en la línea 59**.
+`- run: npx ... || echo "Chrome: lo baja el propio render"` — YAML lee el `: ` dentro del texto como
+un mapa. GitHub Actions **no falla el checkout ni avisa por mail**: simplemente el workflow no existe
+para el cron. El brazo entero habría estado apagado desde el lunes.
+**Efecto:** el `run` va entrecomillado. Validado: parsea, `name: tico-render`, 9 pasos.
+**Regla que sale de acá:** `active` en la API **no** significa "parseado". Antes de dar por vivo un
+workflow, `yaml.safe_load` sobre el archivo y comparar el `name` que devuelve la API contra el `name:`
+del YAML. Si coinciden con la ruta, está roto.
