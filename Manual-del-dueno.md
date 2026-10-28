@@ -77,7 +77,7 @@ Dentro de tus propias reglas (las 4 apps oficiales, sin bots):
 
 **Calendario real:** el lote crea 7, el cron renderiza 6 (lun-sáb); el 7º es el repuesto del colchón (o lo renderizás a mano si querés 7 al aire).
 
-**El video diario promedio:** 60 s, ≤165 palabras, beats HOOK ≤2.5 s → NOMBRE → MECANISMO → DEMO → UTILIDAD → CTA; voz es-ES-Alvaro +8% alternos; chip del nicho; ~12-18 min de máquina por video, $0.
+**El video diario promedio:** 60 s, ≤165 palabras, beats HOOK ≤2.5 s → NOMBRE → MECANISMO → DEMO → UTILIDAD → CTA; voz es-ES-Alvaro +8% alternos; chip del nicho; **~3 min de máquina por video medidos en GitHub Actions** (3m11s en `delivery`, 3m54s en `draft`; los "~12-18 min" del plan eran una estimación anterior a la primera corrida), $0.
 
 **¿2 por día?** Posible (2 triggers), pero no recomendado al inicio: las cuentas nuevas lo penalizan. 1 diario constante es lo que crece.
 
@@ -92,7 +92,7 @@ Dentro de tus propias reglas (las 4 apps oficiales, sin bots):
 
 **Por qué este híbrido y no otra arquitectura (las 3 variantes evaluadas):**
 - (A) Todo en Colab, render incluido → 45-90 min/video en la CPU de Colab. Lento y sujeto a la sesión.
-- (B) **ELEGIDA:** Colab = creativo + GitHub Actions = render y cron. ~12-18 min de máquina/video, cron confiable día de por medio, $0.
+- (B) **ELEGIDA:** Colab = creativo + GitHub Actions = render y cron. ~3 min de máquina/video (medido en el runner), cron confiable día de por medio, $0.
 - (C) API de modelos premium → DESCARTADA: exige claves/pagos (fuera de las reglas).
 
 ---

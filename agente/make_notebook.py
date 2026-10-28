@@ -357,7 +357,7 @@ for cmd in (["git", "add", "data/"],
             ["git", "push"]):
     p = subprocess.run(cmd, capture_output=True, text=True)
     print("$", *cmd, "->", (p.stdout or p.stderr).strip()[-300:])
-print("Despues de esto: GitHub Actions renderiza el de hoy en ~12-18 min. Vos cerras la notebook.")
+print("Despues de esto: GitHub Actions renderiza el de hoy en ~3 min (medido). Vos cerras la notebook.")
 '''
 
 CELDA_5 = '''# ============================================================================

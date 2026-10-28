@@ -64,9 +64,11 @@ ESTADO Y PROXIMO PASO
 - Plan de voz HIBRIDO aprobado (26-oct-2026): lanzar con la mejor voz Microsoft +
   la receta de direccion; excepcion Chirp 3 HD (Google, voces Fenrir/Enceladus)
   queda EN EVALUACION — como escuchar muestras y decidir: Manual-del-dueno.md §11.
-- Pendiente unico: el DIA-1 de construccion (repo + notebook + token +
-  video de prueba S001 via "Run workflow" en GitHub Actions).
-- Duracion estimada del video dia promedio en maquina: ~12-18 min.
+- Pendiente unico: el token fine-grained de GitHub y pegarlo en Colab (paso 1 de DIA-1).
+  El repo ya esta creado y subido (EriicksonNTF/Colab-fabrica-video), el workflow activo y
+  el video de prueba S001 ya se renderizo solo en la nube con QC PASA.
+- Duracion medida del render en GitHub Actions: ~3 min por video (delivery 3m11s, draft 3m54s).
+  La biblia decia ~12-18 min; era una estimacion previa a la primera corrida real.
 - Tu vida por semana: ~1 h 50 min para 6 videos al aire + 1 repuesto.
 
 ====================================================

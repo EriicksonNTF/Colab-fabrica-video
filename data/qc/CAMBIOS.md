@@ -138,6 +138,8 @@ La segunda corrida bajó de 6 fallas a 2. Las dos que quedaban **no eran umbrale
 bugs del QC y del encuadre.** Se arregló la causa, no el número.
 
 ### 12. El QC ya no adivina dónde está el karaoke: se lo dice el comp
+> El `comp_meta.json` y las bandas siguen vigentes. El umbral **`MIN_DENTRO = 8 %` de esta entrada
+> fue derogado por #17** (densidad) y el gate por beat lo refinó **#20**.
 **Motivo:** `qc.py` excluía de la medición la banda 60-86 % del alto "porque ahí viven los
 subtítulos", pero el karaoke de este canal vive **arriba** (`SUB_TOP = 182`, como `SUB_Y` del
 prototipo). Con la banda equivocada pasaban dos cosas a la vez: el **texto del subtítulo se contaba
@@ -170,6 +172,8 @@ anterior**: el pulso late sobre la escena que ya está encuadrada. Es además co
 (cero cortes, nada se teletransporta).
 
 ### 15. La deriva de cámara es un ciclo, no un tween de 55 s
+> **DEROGADO por #18**: el ciclo por keyframes con `sine.inOut` frenaba en cada extremo y producía
+> *más* fotogramas congelados, no menos. Vale el diagnóstico de acá, no la solución.
 **Motivo:** con un único `to("#drift")` de duración total, el movimiento es tan lento que el pixel no
 lo registra: el QC midió **4 fotogramas congelados** (`|Δluma| < 0,05`) y la regla C3 ("ningún
 fotograma idéntico al anterior") se cortaba sola.
@@ -264,8 +268,9 @@ casi vacíos, 0 congelados, `|Δ²scale|` 0,00383, densidad de foco 4,5-20,4 %, 
 
 ---
 
-## 2026-10-27 · el workflow estaba muerto y GitHub no avisaba
+## 2026-10-27 · se subió el repo y aparecieron dos verdades que faltaban
 
+### 21. El workflow estaba muerto y GitHub no avisaba
 **Motivo:** al subir el repo, `git ls-tree origin/main` mostraba los 31 archivos y la API devolvía el
 workflow en estado `active`, pero el `name` que reportaba GitHub era la **ruta del archivo** en vez de
 `tico-render`. Eso pasa cuando el YAML no parsea. `python -c "import yaml; yaml.safe_load(...)"` lo
@@ -278,7 +283,7 @@ para el cron. El brazo entero habría estado apagado desde el lunes.
 workflow, `yaml.safe_load` sobre el archivo y comparar el `name` que devuelve la API contra el `name:`
 del YAML. Si coinciden con la ruta, está roto.
 
-### 21. La hipótesis "en GitHub Actions sí hay `WordBoundary`" quedó refutada
+### 22. La hipótesis "en GitHub Actions sí hay `WordBoundary`" quedó refutada
 **Motivo:** DIA-1 afirmaba que el karaoke en modo `proporcional` era un límite **de esta PC**, y que
 en el runner de Actions edge-tts normalmente entrega las marcas de palabra y la sincronía pasa a ser
 medida. Nunca se había probado.
@@ -290,3 +295,15 @@ de las dos máquinas. Se borró la promesa de la guía y quedó escrita la refut
 Distintas duraciones de audio por beat mueven los tiempos de viaje de cámara. Los dos están bajo el
 piso de 0,008, y el hecho de que la corrida de la nube **no** heredara el número de la PC es
 exactamente lo que se quiere: el manifiesto se recalcula, no se copia.
+
+### 23. "~12-18 min de máquina" era una proyección: medido, son ~3 min
+**Motivo:** toda la documentación (biblia §9, Manual del dueño, LEEME, el propio notebook) presuponía
+12-18 minutos de GitHub Actions por video. Nunca se había cronometrado. Con el workflow ya vivo se
+corrieron dos runs manuales desde checkout limpio.
+**Medido:** `delivery` **3 min 11 s** (run 40621193653, master de 26,09 MB) y `draft` **3 min 54 s**
+(run 40619491592, 22,87 MB). Los dos **PASA con 0 fallas**, 53,972 s · 1080×1920 · 30 fps · yuv420p,
+−14,87 LUFS / −1,88 dBTP, 10/10 cámaras derivadas. Se corrigió Manual, LEEME, DIA-1 y el notebook.
+**No se tocó `Tico renovado.md`** (la biblia es documento del dueño, no de la fábrica): su §9 sigue
+diciendo 12-18 min y **queda derogado por esta medición**.
+**Consecuencia práctica:** el techo de 2000 min/mes de Actions free queda lejos — 6 videos por semana
+son ~18 min de runner. Y el dueño puede re-renderizar un slug a las 20:30 y publicar igual.

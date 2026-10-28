@@ -63,9 +63,14 @@ el resto del repo él solo, con tu token).
   llegó de la escena es `script.json`, que es lo único que necesita el brazo.
 - ✅ El workflow `tico-render` está **activo y verificado parseado** (GitHub ya lo muestra por nombre,
   no por ruta). Ojo: la primera versión del YAML tenía un error de sintaxis y GitHub **no** avisaba —
-  está arreglado y documentado en CAMBIOS #20.
-- ✅ Primera corrida de prueba en la nube: [run 40619491592](https://github.com/EriicksonNTF/Colab-fabrica-video/actions/runs/40619491592),
-  3 min 54 s, 9 pasos verdes, artifact con `master_final.mp4` y **QC `PASA`**.
+  está arreglado y documentado en CAMBIOS #21.
+- ✅ Dos corridas de prueba en la nube, desde un checkout limpio del repo público, las dos con
+  **QC `PASA` y 0 fallas**:
+  [`40619491592`](https://github.com/EriicksonNTF/Colab-fabrica-video/actions/runs/40619491592) en
+  `draft` (3 min 54 s, 22,87 MB) y
+  [`40621193653`](https://github.com/EriicksonNTF/Colab-fabrica-video/actions/runs/40621193653) en
+  `delivery` — que es la calidad del cron diario — (**3 min 11 s**, 26,09 MB, −14,87 LUFS /
+  −1,88 dBTP, 10/10 cámaras derivadas). O sea: no depende de esta PC ni de los archivos que hay acá.
 
 **Lo que sólo vos podés hacer** (es el token, y es a propósito):
 
@@ -93,8 +98,8 @@ incluido el del día siguiente.
 
 1. github.com → tu repo → **Actions** → *tico-render* → **Run workflow** → rama `main` →
    en *slug* escribí `S001-parpado-temblor` → *Run workflow*.
-2. Esperá. **Medido: 3 min 54 s** de punta a punta en el runner (no los 12-18 que suponía la guía).
-   El render corre en la máquina de GitHub, no en la tuya.
+2. Esperá. **Medido en el runner: 3 min 11 s en `delivery`** (y 3 min 54 s en `draft`), no los 12-18
+   min que suponía la biblia §9. El render corre en la máquina de GitHub, no en la tuya.
 3. Cuando termine (✔ verde): panel derecho **Artifacts** → `master-S001-parpado-temblor` →
    descargás un `.zip` con `master_final.mp4`, `hoja_contacto.jpg` y `pipeline_report.json`.
 4. Mirá el MP4 (60 s) y la hoja de contacto. Si el run quedó en rojo: abrí el log, bajá a la última
@@ -144,17 +149,14 @@ distintas del token de GitHub en Colab, o dejar que un bot toque tus cuentas (§
 
 ## 6. Estado honesto de lo que se entregó hoy
 
-Medido sobre el master real de esta carpeta (`data/escenas/S001-parpado-temblor/master_final.mp4`),
-corrida del 27-oct-2026 00:31, calidad `delivery`:
+Medido sobre masters reales, no sobre estimaciones. Compará el de esta carpeta
+(`data/escenas/S001-parpado-temblor/master_final.mp4`, corrida local `delivery` 27-oct 00:31) contra
+el que escupió la nube en el run `40621193653`:
 
-- ✅ **El brazo ya corrió solo en la nube.** Run
-  [`40619491592`](https://github.com/EriicksonNTF/Colab-fabrica-video/actions/runs/40619491592),
-  27-oct-2026, desde un checkout limpio del repo público: 9 pasos en verde, **3 min 54 s**, y el
-  artifact trajo `master_final.mp4` de 22,87 MB con **QC `PASA` y 0 fallas**. O sea: no depende de
-  esta PC ni de los archivos que hay acá.
-- ✅ **El brazo corrió de punta a punta y el QC-AV dio `PASA` con 0 fallas.** 53,97 s · 1080×1920 ·
-  30 fps · yuv420p · 23,6 MB local / 22,9 MB en CI (techo del artifact: 50 MB) · −14,86 LUFS local /
-  −14,87 en CI, pico −1,93 / −1,88 dBTP.
+- ✅ **El brazo corre solo en la nube y del mismo producto.** Dos corridas `PASA` desde un checkout
+  limpio (ver §2). Local: 23,6 MB, −14,86 LUFS, pico −1,93 dBTP. CI `delivery`: 26,09 MB,
+  −14,87 LUFS, pico −1,88 dBTP. Mismo master: **53,972 s · 1080×1920 · 30 fps · yuv420p**.
+- ✅ **El QC-AV dio `PASA` con 0 fallas en las tres corridas** (local, CI draft, CI delivery).
 - ✅ **Cámara continua verificada en el píxel, no declarada**: 810 fotogramas medidos en streaming,
   **0** casi vacíos, **0** congelados, `|Δ²scale|` máximo **0,00383** (piso 0,008) y **10 de 10**
   estaciones derivadas del shot-list. Los 10 beats tienen contenido real dentro de la caja que cada
