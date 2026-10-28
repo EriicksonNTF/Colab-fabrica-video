@@ -1,0 +1,54 @@
+{
+  "slug": "S001-parpado-temblor",
+  "tema": "Mioquimia del párpado",
+  "fecha_investigacion": "26-oct-2026",
+  "claims": [
+    {
+      "id": "C1",
+      "texto": "El temblor del párpado se llama MIOQUIMIA: micro-espasmo del orbicular del ojo, el músculo que lo cierra.",
+      "tier": "C",
+      "confianza": "alta",
+      "fuente": "American Academy of Ophthalmology (What Is Eyelid Twitch?)",
+      "url": "https://www.aao.org/eye-health/diseases/what-is-eyelid-twitch",
+      "frase_key_verificada": "eyelid twitch",
+      "nota_para_guion": "decir el nombre + traducción inmediata. Nunca diagnóstico."
+    },
+    {
+      "id": "C2",
+      "texto": "Los disparadores más comunes: dormir poco, estrés, exceso de cafeína y cansancio visual de pantallas.",
+      "tier": "B",
+      "confianza": "alta",
+      "fuente": "consenso clínico; ficha AAO",
+      "url": "https://www.aao.org/eye-health/diseases/what-is-eyelid-twitch",
+      "frase_key_verificada": "stress",
+      "nota_para_guion": "hablar de disparadores habituales, no de causas únicas."
+    },
+    {
+      "id": "C3",
+      "texto": "Casi siempre se va solo en días. Dormir, bajar cafeína y pausas visuales ayudan a que vuelva menos.",
+      "tier": "C-sin-fuente-confirmada",
+      "confianza": "media",
+      "fuente": "prensa médica de consumo; falta captura de la ficha específica",
+      "url": null,
+      "frase_key_verificada": "",
+      "nota_para_guion": "decir 'ayudan', nunca 'cura'. La pausa 20-20-20 se describe como hábito, no tratamiento."
+    },
+    {
+      "id": "C4",
+      "texto": "Consultá si dura semanas, se extiende al ojo o la cara, el párpado se cierra solo o aparece debilidad.",
+      "tier": "C-sin-fuente-confirmada",
+      "confianza": "alta",
+      "fuente": "bandera roja clínica estándar; falta captura de la ficha específica",
+      "url": null,
+      "frase_key_verificada": "",
+      "nota_para_guion": "OBLIGATORIA si el tema toca síntomas. Tono tranquilo, no alarma. Chip 'Esto no es consejo médico' en el beat."
+    }
+  ],
+  "mitos_explicitos": ["'es falta de magnesio'", "'se cura con gotas'"],
+  "prohibiciones": "no dramatizar neuropatías graves; si la investigación las trae, SKIP idea",
+  "riesgo_medico": "bajo",
+  "veredicto": "PUBLICABLE",
+  "sellado_por": "QC-CIENTÍFICO (verificación manual pendiente en la sesión del dueño)",
+  "advertencia": "C3 y C4 quedan sin URL capturada hoy. Antes de publicar, la celda 3 del notebook (validate.py --urls) debe confirmar una ficha real o el dueño baja el claim del guion."
+
+}

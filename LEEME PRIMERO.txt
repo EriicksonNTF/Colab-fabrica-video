@@ -1,0 +1,74 @@
+FABRICA TICO — CARPETA DE TRANSPORTE
+Fecha de empaquetado: 26-oct-2026
+====================================================
+
+QUE HAY DENTRO
+---------------
+1) Tico renovado.md ......................... EL DOCUMENTO MAESTRO (la biblia tecnica):
+   10 roles con prompts completos, 10 contratos JSON con ejemplos reales,
+   biblia visual SVG de TICO, stack $0 verificado, cronologia, workflow YAML,
+   guardrails, el modelo cerebro elegido (Qwen3.5-Small 9B) y el MODO NUBE
+   completo en §8-BIS. Verificado con fuentes y licencias el 26-oct-2026.
+
+2) Manual-del-dueno.md ...................... LA GUIA PRACTICA (lo que antes estaba
+   solo en el chat): que haces tu cada dia, desde abrir Colab hasta publicar,
+   por que existe el lote dominical, como hacer un video EL MISMO DIA, el atajo
+   de los programadores nativos de las 4 apps, que pasa si algo falla y el
+   plan del Dia-1 de construccion.
+
+3) DIA-1.md ................................. EL PASO A PASO DE HOY: que archivo va a
+   GitHub y cual a Colab, el setup unico de 25 min, como estrenar la fabrica con
+   S001 via "Run workflow", el lote del domingo, publicar, y el estado HONESTO
+   de lo que se probo y lo que todavia no.
+
+4) README.md ................................ EL MAPA TECNICO DEL REPO: las dos
+   mitades (cerebro / brazo), los 7 pasos del brazo, los contratos y las
+   reglas que no se rompen.
+
+5) notebook_cerebro.ipynb ................... EL CEREBRO, listo para subir a Colab.
+   6 celdas: entorno+Ollama, lote creativo con los prompts recortados en vivo de
+   (1), auto-validacion con el mismo validate.py del brazo, git push, y A/B de
+   7 voces. Su fuente editable es agente/make_notebook.py.
+
+6) agente/ + .github/ + docs/ + data/ + assets/ ... LA FABRICA MISMA (el brazo).
+   Ver el arbol completo en DIA-1.md §1.
+
+7) LEEME PRIMERO.txt ........................ este index.
+
+ORDEN DE LECTURA SUGERIDO
+-------------------------
+1. Este archivo (2 min)
+2. DIA-1.md (5 min) — si todavia no creaste el repo, este es tu unico trabajo
+3. Manual-del-dueno.md completo (10 min) — asi sabes que haces cada dia
+4. README.md — cuando quieras saber COMO hace el brazo para que salga el MP4
+5. Tico renovado.md — lectura total una sola vez (es largo, ~1450 lineas);
+   despues solo las secciones que toque cada rol.
+
+PROYECTO EN UNA LINEA
+---------------------
+Canal de video 60-seg ("Cosas raras que tu cuerpo hace, explico con ciencia")
+producido 100% en la nube gratuita: cerebro creativo Qwen3.5-Small 9B en
+Colab/Kaggle + render HyperFrames+GSAP en GitHub Actions + voz edge-tts.
+Costo: $0. Tu PC: solo navegador.
+
+LO QUE NECESITAS PARA OPERARLO
+------------------------------
+- Logins: GitHub + TikTok + YouTube + Instagram + Facebook (lista cerrada).
+- Excepcion aprobada: Colab (cuenta Google) y Kaggle — SOLO para el cerebro.
+- Hugging Face: NO elegible. Nada de APIs pagas, nada de bots de subida.
+- Tu PC no necesita instalar NADA.
+
+ESTADO Y PROXIMO PASO
+---------------------
+- Documento maestro listo y verificado (78 fences par, unicode limpio).
+- Plan de voz HIBRIDO aprobado (26-oct-2026): lanzar con la mejor voz Microsoft +
+  la receta de direccion; excepcion Chirp 3 HD (Google, voces Fenrir/Enceladus)
+  queda EN EVALUACION — como escuchar muestras y decidir: Manual-del-dueno.md §11.
+- Pendiente unico: el DIA-1 de construccion (repo + notebook + token +
+  video de prueba S001 via "Run workflow" en GitHub Actions).
+- Duracion estimada del video dia promedio en maquina: ~12-18 min.
+- Tu vida por semana: ~1 h 50 min para 6 videos al aire + 1 repuesto.
+
+====================================================
+Cada cambio de contrato va a data/qc/CAMBIOS.md con fecha y motivo.
+Al llegar a casa: copia esta carpeta ENTIRA (con los 3 archivos).

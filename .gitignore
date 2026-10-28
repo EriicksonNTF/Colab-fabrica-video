@@ -1,0 +1,37 @@
+# ── El BRAZO (GitHub Actions) produce esto; nunca se versiona ──────────────
+# Si se versionara, el cerebro en Colab haría `git add -A` sobre 40 MB de MP4/WAV
+# y el push del domingo fallaría. Los únicos archivos de escena que van al repo
+# son los que escribe el cerebro: script.json y factsets/{slug}.json.
+data/escenas/*/audio_final.wav
+data/escenas/*/pre_master.wav
+data/escenas/*/voz.wav
+data/escenas/*/voz.mp3
+data/escenas/*/beat*.wav
+data/escenas/*/beat*.mp3
+data/escenas/*/beat*.words.json
+data/escenas/*/sil*.wav
+data/escenas/*/concat.txt
+data/escenas/*/sfx/
+data/escenas/*/video_silencioso.mp4
+data/escenas/*/master_final.mp4
+data/escenas/*/hoja_contacto.jpg
+data/escenas/*/pipeline_report.json
+data/escenas/*/render.log
+data/escenas/.*.hf-transaction-*/
+data/escenas/*/comp.html
+data/escenas/*/comp_meta.json
+data/escenas/*/cam_manifest.jsonl
+data/escenas/*/script_render.json
+data/escenas/*/timestamps.json
+data/escenas/*/master_info.json
+data/qc/*-qcav.json
+data/qc/*-qcav.md
+
+# ── Staging de HyperFrames y basura de Python / OS ─────────────────────────
+work/
+_verif/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db

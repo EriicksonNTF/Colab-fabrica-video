@@ -1,0 +1,263 @@
+# data/qc/CAMBIOS.md — registro de cambios de contrato
+
+Regla del doc maestro: cada cambio de contrato se anota aquí con fecha y motivo.
+
+---
+
+## 2026-10-26 · cuatro cambios aprobados por el dueño
+
+### 1. Se elimina el personaje TICO
+**Motivo:** decisión explícita del dueño — «olvidate ya de tico … ya no hay personaje».
+**Efecto:** se anulan §2.2 (SVG base), §2.3 (tabla de poses) y la regla «1 accesorio temático por
+video» de `Tico renovado.md`. La identidad visual pasa a ser **animación acorde al tema** de cada
+video, gobernada por la paleta y las reglas de movimiento (§2.1 tokens y §6), que se conservan.
+§2.4 (lenguaje de anatomía Z1/Z2/Z3 y gore cero) **sí se conserva**: sigue siendo la gramática del
+nivel de zoom, ahora sin muñeco. El nombre del canal queda en «Cosas raras que tu cuerpo hace,
+explico con ciencia»; el repo se llama `fabrica-cuerpo-raro`.
+
+### 2. Cámara continua sin cortes (reemplaza §6.5)
+**Motivo:** requisito del dueño — los elementos de cada tema se presentan **dentro de una escena
+completa** mediante movimientos de cámara, «sin que haya una transición que corte».
+**Efecto:** queda derogada la línea de §6.5 «los match cuts reemplazan la necesidad de moves
+complejos: el corte ES la cámara». Nuevo contrato obligatorio, en `docs/reglas-de-camara.md`:
+una sola escena-mundo por video, la cámara nunca se detiene en seco (continuidad C¹), los cambios
+Z1→Z2→Z3 se hacen **travelling de zoom**, no fundidos ni cortes, y el desenfoque de movimiento o
+el retroceso de zoom absorben los saltos largos. §6.1-6.4, 6.6-6.10 siguen vigentes.
+
+### 3. Subtítulos: se conserva el look ya entregado (reemplaza §4.6)
+**Motivo:** el dueño eligió explícitamente el subtítulo con **caja de palabra clave**, tal como
+salió en `prototipo_codigo.mp4` y en los 10 videos de la serie.
+**Efecto:** `subs.ass` de §4.6 deja de ser la fuente del karaoke. El karaoke se genera en
+HTML/CSS dentro de `comp.html` desde `timestamps.json`, replicando `pipeline/draw.py:370-412`:
+palabra aún no hablada en gris `#7A8699`, palabra hablada en blanco `#ECF0F5` (Inter SemiBold), y
+las palabras clave con caja redondeada fondo `#172A42`, contorno `#4A90D9` y **cuatro manijas
+circularas en las esquinas**. Fuente: Inter (OFL, en `assets/fonts/`), no Nunito.
+
+### 4. Corrección de dato: el tag del cerebro
+**Motivo:** verificación externa del 26-oct-2026 contra la biblioteca de Ollama.
+**Efecto:** `qwen3.5-small:9b` **no existe**. Los tags válidos son `qwen3.5:0.8b|2b|4b|9b|27b|35b|122b`.
+Se corrige a `qwen3.5:9b` en `notebook_cerebro.ipynb` y en la config del cerebro; el doc maestro
+debe actualizarse en §8-bis.1 y §8-bis.7.
+
+---
+
+## 2026-10-26 · tres cambios más, impuestos por el pipeline determinista
+
+### 5. `comp.html` lo escribe el código, no el modelo
+**Motivo:** el contrato de HyperFrames (root/timed-clips/una-timeline-pausada, las 12 leyes de
+determinismo y el lint `font_family_without_font_face` / `caption_exit_missing_hard_kill`) es
+demasiado rígido para que un 9B lo escriba a mano sin romperlo. La regla de oro del §0 ya lo dice:
+las REGLAS son el 90 % del trabajo.
+**Efecto:** el ANIMADOR (§5.5) entrega el **shot-list** en `script.json → mundo.zonas[].piezas[]`
+(qué primitiva, dónde, en qué beat aparece, con qué acento). `agente/build_comp.py` materializa el
+SVG y la línea de tiempo. Cambia también §4.3: `beats[].cam` pasa a **opcional** (ver #7).
+
+### 6. Color del subtítulo adaptado a la paleta de papel
+**Motivo:** el look del §4.6/CAMBIOS #3 se replicó en HTML, pero sobre crema `#FFF8F1` el texto
+blanco `#ECF0F5` de la palabra hablada es invisible.
+**Efecto:** la caja de keyword conserva fondo `#172A42` + contorno `#4A90D9` + cuatro manijas
+circulares; la palabra aún no hablada queda `#7A8699` y la hablada pasa a **tinta `#161616`**. La
+keyword hablada mantiene `#ECF0F5` porque vive dentro de la caja oscura.
+
+### 7. El encuadre se deriva del contenido; `cam` es un override del guionista
+**Motivo:** con `cam` declarado a mano por un 9B, la mitad de los beats quedaba con márgenes de
+papel vacíos o con el objeto chico en un rincón (falla L1/C5 del QC). `build_comp.py` calcula la
+estación desde la caja unión de las primitivas que entran en ese beat (las anotaciones —bandera,
+anillo— pueden ensanchar el plano pero no mandarlo) y agranda el mundo para que ningún encuadre se
+asome fuera del papel.
+**Efecto:** en `script.json`, `beats[].cam` es opcional; si existe, manda (es el modo "paneo pedido
+por el guionista", como el DEMO de S001). `agente/validate.py` valida `piezas[]` (id único, tipo del
+registro, `p=[x,y]`, `aparece` = índice de beat) y ya no exige `cam`.
+
+### Nota de herramienta (no cambia contrato)
+El CI verifica el render con `npx -y hyperframes render --resolution portrait --strict`: **0 errores
+de lint**. `master_info.json` informa `picovoz` (la muestra real de la voz, para el TC del QC) y
+`rates_por_beat` con la RECETA de §5.4.
+
+---
+
+## Verificado el 2026-10-26 (no cambia el contrato, sostiene las hipótesis del §7)
+
+- `heygen-com/hyperframes`: existe, Apache-2.0, 73 120★. Render = headless Chrome con seek por
+  fotograma + FFmpeg ⇒ determinista. Requisitos Node 22+ y FFmpeg.
+- GSAP: 100 % gratis desde abr-2025 (Webflow) incluidos plugins; licencia *Standard* propietaria,
+  no OSI — la nota de honestidad del §7 se mantiene.
+- `greensock/gsap-skills` MIT 17 223★ · `emilkowalski/skills` MIT 50 160★.
+
+---
+
+## 2026-10-26 · cuatro correcciones nacidas de mirar la hoja de contacto (no del QC)
+
+Lección del prototipo, otra vez útil: el QC dio verde en umbrales viejos y el video igual tenía
+planos vacíos y banderitas sin texto. **El QC mide; la hoja de contacto juzga.**
+
+### 8. Umbrales del QC recalibrados contra el master real
+**Motivo:** `MIN_COVERAGE` y `MIN_W_OR_H` estaban pensados para mancha maciza. El estilo del canal es
+**línea sobre papel** (trazo ~12 px + rellenos chicos): la cobertura media medida de un master real
+de S001 es **3,6 %**, y un beat legítimo de silueta alta da 46 % de ancho pero 50 % de alto. Con los
+umbrales viejos el QC reprobaba encuadres buenos.
+**Efecto:** `MIN_COVERAGE = 0,015`, `MIN_W_OR_H = (0,55; 0,45)` (basta con **uno** de los dos ejes),
+`MAX_CASI_VACIOS = 45` cuadros a 15 fps ≈ 3 s repartidos de papel suelto. La exigencia de L1 (78 %
+de ancho) **se cumplía acá y ahora se cumple al generar**, en `build_comp.py`. No se bajó el estándar:
+se movió de lado.
+
+### 9. La caja y la palabra de una bandera entran juntas
+**Motivo:** el acento de keyword animaba el rectángulo en `t0+0,55` y el texto en `t0+0,70`. En los
+~0,15 s del medio se veía **una cajita vacía**, que en pantalla se lee como error de render.
+**Efecto:** los dos tweens arrancan en `t0+0,5`; el rectángulo con `back.out(1.7)` y el texto con
+`power2.out` de la misma duración. Regla general que queda: *ninguna anotación puede existir sin su
+contenido*.
+
+### 10. `SANGRAN` y tope de zoom `MAX_S = 1,35`
+**Motivo:** los anillos de pulso son decoración que a propósito se sale del cuadro; pero entraban en
+la caja unión y **achicaban** el plano para "mostrarlos completos", dejando el diagrama chico y
+flotando en papel. Y sin tope de zoom, una pieza chica (un parpado) llegaba a `scale` absurdos.
+**Efecto:** en `build_comp.py`, `SANGRAN = {"anillo"}` se descuenta del encuadre;
+`ANOTACIONES = {"bandera", "anillo"}` **ensancha** la estación héredada si no cabría, pero no la
+maneja. Topes `MIN_S = 0,30` / `MAX_S = 1,35`.
+
+### 11. La hoja de contacto muestrea todo el video
+**Motivo:** se generaba con `select=mod(n,30)` + `tile=2x3`, así que sus 6 recuadros salían todos de
+los **primeros 5 segundos**: el QA visual juzgaba el video entero con el arranque.
+**Efecto:** `fps=1/(duración/6),tile=2x3` → un cuadro cada ~9 s, del primero al último. Y el muestreo
+de `qc.py` pasó a **streaming por Popen a 15 fps**: del cuadro queda la métrica, no el píxel (la
+versión anterior pedía 1650 RGBA y se comía la RAM del runner).
+
+### Datos, no contrato
+`script.json` de S001: la zona `circuito` se re-dibujó **vertical** (cerebro arriba, músculo abajo,
+señal y factores en columna) porque un circuito horizontal de 2000 unidades dentro de un cuadro
+9:16 queda chico en ancho y enorme en vacío; y se borró el `cam` hardcodeado del beat DEMO, que
+sobró cuando cambió el layout y hoy violaría CAMBIOS #7. El validator sigue en verde y las 10/10
+cámaras son derivadas.
+
+---
+
+## 2026-10-26 · cuatro correcciones de la segunda corrida (la que ya tenía los umbrales nuevos)
+
+La segunda corrida bajó de 6 fallas a 2. Las dos que quedaban **no eran umbrales mal puestos: eran
+bugs del QC y del encuadre.** Se arregló la causa, no el número.
+
+### 12. El QC ya no adivina dónde está el karaoke: se lo dice el comp
+**Motivo:** `qc.py` excluía de la medición la banda 60-86 % del alto "porque ahí viven los
+subtítulos", pero el karaoke de este canal vive **arriba** (`SUB_TOP = 182`, como `SUB_Y` del
+prototipo). Con la banda equivocada pasaban dos cosas a la vez: el **texto del subtítulo se contaba
+como si fuera dibujo** (un beat casi vacío marcaba 1,4 % de cobertura) y el diagrama que sí caía en
+la franja 60-86 % quedaba **ciego**. Es exactamente la falla que ya había diagnosticado el
+prototipo: un QA de píxeles con la geometría mal puesta da verde sobre una escena vacía.
+**Efecto:** `build_comp.py` escribe **`comp_meta.json`** con dos cosas que sólo él puede saber:
+`bandas` (franjas del HUD, en fracción del alto) y `focos` (la caja de **pantalla** que cada
+estación promete, en px). `qc.py` recibe `--meta` y, además de tapar las bandas, exige
+`MIN_DENTRO = 8 %` de píxel distinto del papel **dentro de la caja declarada**: prueba "la cámara
+está mirando acá", que la cobertura global no puede probar nunca (el dibujo de al lado también
+cuenta). Sin `--meta` el QC mide todo el cuadro y lo deja escrito como advertencia.
+
+### 13. Una etiqueta no achica el plano (cierra el CAMBIOS #7)
+**Motivo:** en S001 la bandera "ese punto" obligaba a bajar la escala del beat 2 de 1.179 a **0.852**
+(−28 % de zoom) para que cupiera un rótulo de diez caracteres. El cuerpo quedó chico y rodeado de
+papel: el QC lo aprobaba porque la caja unión seguía "extendiéndose".
+**Efecto:** `estacion_de` limita el clamp de las anotaciones a **0.94×** del encuadre primario y
+`Comp._acerca_anotaciones` **mueve la etiqueta hacia el centro de la estación** (hasta 6 pasos de
+0.7, antes del corrimiento del mundo, para comparar en las mismas unidades) hasta que quepa. El beat
+2 de S001 pasó de 0.852 a **1.108**. Regla: *lo que se mueve es la anotación, no el plano*.
+
+### 14. Beat de sólo adorno: la cámara no se mueve
+**Motivo:** el beat 8 de S001 tiene una única pieza, un `anillo`, y los anillos están en `SANGRAN`
+(se descuentan del encuadre). Al quedarel beat sin `prim` ni `extras`, entraba el fallback sintético
+(caja ±620/±420 alrededor del centro de la zona) y el resultado era **un anillo amarillo flotando en
+un mar de papel**.
+**Efecto:** si un beat no aporta más que adornos que sangran, **hereda la estación del beat
+anterior**: el pulso late sobre la escena que ya está encuadrada. Es además coherente con C5/C6
+(cero cortes, nada se teletransporta).
+
+### 15. La deriva de cámara es un ciclo, no un tween de 55 s
+**Motivo:** con un único `to("#drift")` de duración total, el movimiento es tan lento que el pixel no
+lo registra: el QC midió **4 fotogramas congelados** (`|Δluma| < 0,05`) y la regla C3 ("ningún
+fotograma idéntico al anterior") se cortaba sola.
+**Efecto:** `#drift` ahora tiene seis keyframes por eje en un **ciclo de 5 s con `repeat`**
+(determinista: nada de `random`, nada de `Date.now`). Mismo contrato C3, ahora medible.
+
+### Herramienta nueva (fuera del pipeline)
+`agente/_diag_encuadre.py <carpeta-de-escena>` proyecta las piezas de cada beat contra el cuadro e
+imprime qué se supone que debe verse. No lo llama el CI: es la cuenta a mano que encontró las fallas
+13 y 14 cuando el QC todavía daba verde.
+
+
+
+---
+
+## 2026-10-27 · el QC corregido delata el defecto real (y se arregla la causa)
+
+Con las bandas ya correctas (CAMBIOS #12), la corrida marcó **83 fotogramas casi vacíos, 6 congelados
+y 3 beats sin foco**. No eran umbrales: era la película mostrando papel en blanco.
+
+### 16. Las piezas se dibujan DURANTE el viaje de cámara, no al llegar
+**Motivo:** cada pieza entraba en `arrival + retraso`. La cámara tarda entre 0,55 y 1,30 s en llegar a
+la estación, así que ese segundo y pico el cuadro sólo mostraba la zona de origen y **cruzaba papel
+vacío** hasta la de destino: cinco segundos de los 55 son eso. La regla C4 estaba escrita en el doc y
+ninguna parte del código la cumplía.
+**Efecto:** una sola función, `viaje_de(c, i)` en `agente/build_comp.py`, es la dueña de la duración
+del viaje, y la usan a la vez el tween de `#cam`, el replay de `cam_manifest.jsonl` y el `t0` de
+entrada de las piezas (`arrival - viaje - 0,15 + retraso`). Una pieza no puede aparecer antes ni
+después de su cámara porque las dos cosas salen del mismo número.
+**Verificación:** `hyperframes snapshot --at 11,16,25.5,32.5,39` (los cinco cuadros caen a mitad de
+viaje) → los cinco tienen diagrama. Antes: cuatro de ellos eran papel.
+
+### 17. El umbral de foco mide densidad, no fracción de pintura
+**Motivo:** el primer gate (`MIN_DENTRO = 8 %` del píxel dentro de la caja declarada) cortó beats
+legítimos que estaban bien encuadrados y medían 3,7-7,8 %. La métrica preguntaba "¿cuánto de todo el
+dibujo cae dentro de la caja?", y en un mundo continuo siempre hay zonas vecinas fuera de ella: la
+pregunta estaba mal hecha.
+**Efecto:** el QC reporta dos números pero **gatea sólo uno**:
+- `pinturaEnFoco` = fracción del píxel total dentro de la caja → informativo, no corta.
+- `densidadFoco` = píxel distinto del papel por unidad de área de la caja → `MIN_DENSIDAD = 1,5 %`.
+Calibrado sobre el master real: bien encuadrado 3,7-21 %; cámara mirando al otro lado <0,8 %. El
+margen entre ambos es de ~5×, así que el umbral no decide casos límite.
+También se corrió la ventana de medición de cada beat a `arrival +0,45 … +1,45` para no puntuar el
+fotograma exacto en que todavía está terminando el viaje.
+
+---
+
+## 2026-10-27 · tres correcciones sobre la respiracion de camara y el gate por beat
+
+Con el papel vacío ya eliminado (CAMBIOS #16), el QC bajó de 83 fotogramas casi vacíos a **cero** y
+de 10 beats revisados a 9 en verde. Lo que quedaba eran tres cosas distintas, y ninguna era un número
+mal puesto.
+
+### 18. La deriva son dos senoides, no seis keyframes con easing
+**Motivo:** la primera versión de C3 usó `keyframes:{x:[0,18,-14,26,-18,0]}` con `ease:"sine.inOut"`.
+Un keyframe con easing **frena hasta velocidad cero en cada extremo**, así que la cámara se detenía
+seis veces cada cinco segundos. El pixel lo midió: **13 fotogramas** con `|Δluma| < 0,05` (antes 6).
+O sea: para curar los cuadros congelados habíamos puesto un motor que se congela a propósito.
+**Efecto:** `_deriva()` (build_comp.py) muestrea en Python la suma de dos senoides de periodos que no
+coinciden — 5,0 s + 3,1 s en x, 5,0 s + 3,7 s en y, fases distintas por eje, como pide C3 — y entrega
+220 keyframes unidos con `easeEach:"none"`. Los dos extremos de cada eje nunca caen en el mismo
+instante, así que la velocidad compuesta no se anula lo bastante tiempo como para congelar un cuadro.
+Interpolación lineal a 4 Hz sobre un seno de 5 s: error de posición ~0,3 % de la amplitud.
+Sigue determinista (seno de Python en el build; el navegador no calcula nada). El `comp.html` creció
+de 51,7 a 54,8 KB.
+
+### 19. El fundido de salida no puede ser a la vez obligatorio y "fotograma congelado"
+**Motivo:** C5 permite exactamente un fundido a negro de 0,4 s al final. En el negro, `Δluma` es 0 por
+diseño, y el conteo de C3 sumaba esos cuadros: **5 de los 13 congelados eran el cierre**. Dos reglas
+del mismo doc se contradecían en el código.
+**Efecto:** `FADE_SALIDA = 0,6` s: la cola del video queda excluida del conteo de C3, con el porqué
+escrito en el umbral. El resto de la película se mide igual.
+
+### 20. Con caja declarada, mandan la densidad y el bbox; la cobertura global es el proxy debil
+**Motivo:** el beat 4 de S001 (`MECANISMO`, la circuito cerebro→músculo) marcó `cov = 1,47 %` contra un
+piso de 1,5 %. Miro el fotograma: cerebro, trazo nervioso con sus puntos, músculo y dos rótulos, todo
+centrado y legible. Es **un dibujo de una sola línea vertical**: llena el alto del cuadro y pinta poco
+píxel. La cobertura global no puede distinguir "diagrama airy" de "papel vacío"; para eso existe la
+densidad dentro de la caja que la propia estación prometió, y ese beat medía `densidadFoco = 4,7 %`.
+**Efecto:** cuando el comp declaró foco para el beat, el gate pasa a ser
+`densidadFoco ≥ 1,5 %` **y** bbox extendido; la cobertura global se imprime pero no corta. Sin caja
+declarada sigue el criterio viejo. Lo que custodia el papel vacío no se tocó y ahora es más fuerte:
+`≤ 45 fotogramas` con `cov < 1,2 %` en toda la película (medido: **0**).
+**Honesto:** esto afloja un gate que había fallado. La justificación no es "el número estaba mal", es
+que con la caja y el bbox hay una medición más específica y el promedio de píxel del cuadro entero es
+la versión débil de la misma pregunta. Si alguien baja `MAX_CASI_VACIOS` o borra `comp_meta.json`,
+este afloje vuelve a ser peligroso.
+
+**Resultado medido (corrida `delivery`, 27-oct 00:31):** veredicto **PASA**, 10/10 beats, 0 fotogramas
+casi vacíos, 0 congelados, `|Δ²scale|` 0,00383, densidad de foco 4,5-20,4 %, cobertura media de cuadro
+3,1 %, −14,86 LUFS / −1,93 dBTP, 23,6 MB. `hyperframes lint`: 0 errores, 3 avisos de estilo.

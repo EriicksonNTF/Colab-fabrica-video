@@ -1,0 +1,5 @@
+# Brazo de render (GitHub Actions). Sin pines estrictos: el runner toma la version vigente del dia;
+# cualquier incompatabilidad se ve en el log del pipeline y escala al dueño (regla §8-bis: no parchar).
+edge-tts>=6.1.11
+numpy>=2.0
+# Emergencia offline de voz (solo si hace falta Kokoro): pip install kokoro soundfile

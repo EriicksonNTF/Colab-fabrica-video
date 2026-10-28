@@ -1,0 +1,487 @@
+{
+  "slug": "S001-parpado-temblor",
+  "factset": "data/factsets/S001-parpado-temblor.json",
+  "duracion_objetivo_s": 52.0,
+  "voz": {
+    "voice_id": "es-ES-AlvaroNeural",
+    "rate_global": "+8%",
+    "receta_por_beat": true
+  },
+  "fps": 30,
+  "cuadro": [
+    1080,
+    1920
+  ],
+  "mundo": {
+    "ancho": 3200,
+    "alto": 9200,
+    "nota": "Un solo plano continuo. La camara (#cam) es lo unico que se anima a escala global; las zonas nunca se cortan ni se funden entre si. Reglas en docs/reglas-de-camara.md. Estaciones calculadas para que el encuadre nunca salga del mundo (borde superior 26 px, inferior 9174 px).",
+    "zonas": [
+      {
+        "id": "ojo",
+        "nivel": "Z2",
+        "c": [
+          1600,
+          1400
+        ],
+        "w": 1500,
+        "h": 900,
+        "contenido": "El ojo estilizado de laboratorio: esclera, iris, y el musculo orbicular en rojo con pulsos electricos.",
+        "piezas": [
+          {
+            "id": "ojo1",
+            "tipo": "ojo",
+            "p": [
+              1600,
+              1400
+            ],
+            "escala": 1.0,
+            "color": "#E23A45",
+            "pulso": 3,
+            "tembleque": true,
+            "aparece": 0,
+            "motivo": "beat 0: el parpado late. El orbicular rojo es el unico color de alarma del video."
+          },
+          {
+            "id": "bquimia",
+            "tipo": "bandera",
+            "p": [
+              1872,
+              1258
+            ],
+            "hacia": [
+              300,
+              -170
+            ],
+            "texto": "mioquimia",
+            "aparece": 1,
+            "retraso": 0.35
+          },
+          {
+            "id": "borbicular",
+            "tipo": "bandera",
+            "p": [
+              1330,
+              1520
+            ],
+            "hacia": [
+              -330,
+              210
+            ],
+            "texto": "orbicular",
+            "aparece": 1,
+            "retraso": 0.75
+          }
+        ]
+      },
+      {
+        "id": "silueta",
+        "nivel": "Z1",
+        "c": [
+          1600,
+          3150
+        ],
+        "w": 1900,
+        "h": 2300,
+        "contenido": "Silueta humana simple con el ojo marcado en rojo pulsante.",
+        "piezas": [
+          {
+            "id": "cuerpo",
+            "tipo": "silueta",
+            "p": [
+              1600,
+              3150
+            ],
+            "escala": 1.0,
+            "marca_ojo": true,
+            "aparece": 2
+          },
+          {
+            "id": "bmismo",
+            "tipo": "bandera",
+            "p": [
+              1554,
+              2710
+            ],
+            "hacia": [
+              -380,
+              -150
+            ],
+            "texto": "ese punto",
+            "aparece": 2,
+            "retraso": 0.9
+          }
+        ]
+      },
+      {
+        "id": "circuito",
+        "nivel": "Z3",
+        "c": [
+          1600,
+          5350
+        ],
+        "w": 2500,
+        "h": 1500,
+        "contenido": "Nodo-cerebro, flechas azules al musculo, bateria baja y tazas de cafe.",
+        "piezas": [
+          {
+            "id": "circ1",
+            "tipo": "circuito",
+            "p": [
+              1600,
+              4700
+            ],
+            "cerebro": [
+              -140,
+              -560
+            ],
+            "musculo": [
+              140,
+              480
+            ],
+            "senales": 3,
+            "desorden": true,
+            "aparece": 3
+          },
+          {
+            "id": "bsenal",
+            "tipo": "bandera",
+            "p": [
+              1460,
+              4330
+            ],
+            "hacia": [
+              -250,
+              -150
+            ],
+            "texto": "senal electrica",
+            "aparece": 3,
+            "retraso": 1.3
+          },
+          {
+            "id": "factores",
+            "tipo": "texto",
+            "p": [
+              1600,
+              5560
+            ],
+            "texto": "poco sueno  ·  estres  ·  cafeina",
+            "size": 58,
+            "peso": 700,
+            "aparece": 4,
+            "retraso": 0.6
+          },
+          {
+            "id": "bat1",
+            "tipo": "bateria",
+            "p": [
+              1050,
+              5980
+            ],
+            "nivel": 12,
+            "etiqueta": "energia del sistema",
+            "aparece": 4
+          },
+          {
+            "id": "tazas1",
+            "tipo": "tazas",
+            "p": [
+              1650,
+              5960
+            ],
+            "n": 3,
+            "aparece": 4,
+            "retraso": 0.45
+          },
+          {
+            "id": "monitor1",
+            "tipo": "monitor",
+            "p": [
+              2300,
+              5980
+            ],
+            "reloj": "00:47",
+            "aparece": 5
+          },
+          {
+            "id": "ojo2",
+            "tipo": "ojo",
+            "p": [
+              1600,
+              6600
+            ],
+            "escala": 0.55,
+            "color": "#E23A45",
+            "pulso": 2,
+            "tembleque": true,
+            "aparece": 5,
+            "retraso": 0.6
+          }
+        ]
+      },
+      {
+        "id": "calma",
+        "nivel": "Z2",
+        "c": [
+          1600,
+          7050
+        ],
+        "w": 1700,
+        "h": 1200,
+        "contenido": "El mismo ojo, ahora en verde; linea 0-7 dias; fichas de habitos.",
+        "piezas": [
+          {
+            "id": "ojo3",
+            "tipo": "ojo",
+            "p": [
+              1250,
+              7000
+            ],
+            "escala": 0.8,
+            "color": "#39B57A",
+            "pulso": 0,
+            "aparece": 6
+          },
+          {
+            "id": "dias",
+            "tipo": "linea_tiempo",
+            "p": [
+              2000,
+              6950
+            ],
+            "w": 800,
+            "dias": 7,
+            "etiqueta": "se va solo en dias",
+            "aparece": 6,
+            "retraso": 0.6
+          },
+          {
+            "id": "fdormir",
+            "tipo": "ficha",
+            "p": [
+              1120,
+              7380
+            ],
+            "titulo": "dormir",
+            "nota": "",
+            "badge": "check",
+            "w": 400,
+            "h": 190,
+            "aparece": 7
+          },
+          {
+            "id": "fcafeina",
+            "tipo": "ficha",
+            "p": [
+              1600,
+              7380
+            ],
+            "titulo": "menos cafeina",
+            "nota": "",
+            "badge": "check",
+            "w": 400,
+            "h": 190,
+            "aparece": 7,
+            "retraso": 0.2
+          },
+          {
+            "id": "fpausas",
+            "tipo": "ficha",
+            "p": [
+              2080,
+              7380
+            ],
+            "titulo": "pausas",
+            "nota": "",
+            "badge": "check",
+            "w": 400,
+            "h": 190,
+            "aparece": 7,
+            "retraso": 0.4
+          },
+          {
+            "id": "fmagnesio",
+            "tipo": "ficha",
+            "p": [
+              1600,
+              7790
+            ],
+            "titulo": "magnesio",
+            "nota": "no era eso",
+            "badge": "cruz",
+            "w": 460,
+            "h": 210,
+            "aparece": 7,
+            "retraso": 0.85
+          },
+          {
+            "id": "alerta",
+            "tipo": "anillo",
+            "p": [
+              2050,
+              7120
+            ],
+            "r": 160,
+            "n": 3,
+            "color": "#F4B942",
+            "aparece": 8
+          }
+        ]
+      },
+      {
+        "id": "teaser",
+        "nivel": "Z1",
+        "c": [
+          1600,
+          7950
+        ],
+        "w": 2100,
+        "h": 900,
+        "contenido": "Mano sumergida: los dedos se arrugan por vasoconstriccion (gancho del proximo video).",
+        "piezas": [
+          {
+            "id": "mano1",
+            "tipo": "mano",
+            "p": [
+              1600,
+              7900
+            ],
+            "arrugas": true,
+            "onda": true,
+            "aparece": 9
+          },
+          {
+            "id": "bnervios",
+            "tipo": "bandera",
+            "p": [
+              1745,
+              7662
+            ],
+            "hacia": [
+              240,
+              -190
+            ],
+            "texto": "nervios",
+            "aparece": 9,
+            "retraso": 1.1
+          }
+        ]
+      }
+    ]
+  },
+  "beats": [
+    {
+      "t": 0.0,
+      "tipo": "HOOK",
+      "zona": "ojo",
+      "linea": "¿Por qué te tiembla el párpado... sin que tú lo ordenes?",
+      "keywords": [
+        "tiembla",
+        "párpado"
+      ],
+      "visual": "El orbicular rojo late con pulso azul; entrada con easing y deriva perpetua."
+    },
+    {
+      "t": 3.0,
+      "tipo": "NOMBRE",
+      "zona": "ojo",
+      "linea": "Tiene nombre: mioquimia — un mini-espasmo del músculo que cierra el ojo.",
+      "keywords": [
+        "mioquimia"
+      ],
+      "visual": "Banderita MIOQUIMIA con hilo finito sobre el orbicular; push-in corto."
+    },
+    {
+      "t": 8.0,
+      "tipo": "NOMBRE",
+      "zona": "silueta",
+      "linea": "Es más común de lo que creés.",
+      "keywords": [
+        "común"
+      ],
+      "visual": "Travelling de alejamiento Z2->Z1 (baja scale); el ojo marcado pulsa dentro del cuerpo."
+    },
+    {
+      "t": 11.5,
+      "tipo": "MECANISMO",
+      "zona": "circuito",
+      "linea": "Ese músculo recibe micro-señales eléctricas del sistema nervioso.",
+      "keywords": [
+        "señales",
+        "nervioso"
+      ],
+      "visual": "Nodos azules viajan del cerebro al musculo; flechas se dibujan con trazo progresivo."
+    },
+    {
+      "t": 16.5,
+      "tipo": "MECANISMO",
+      "zona": "circuito",
+      "linea": "Cuando el circuito se satura — poco sueño, estrés, mucho café —, las señales se desordenan... y el párpado baila solo.",
+      "keywords": [
+        "satura",
+        "desordenan"
+      ],
+      "visual": "La bateria cae a 12%, entran 3 tazas escalonadas, el circuito pierde sincronia."
+    },
+    {
+      "t": 26.0,
+      "tipo": "DEMO",
+      "zona": "circuito",
+      "linea": "Pantalla hasta tarde, café número tres, y el ojo que no obedece.",
+      "keywords": [
+        "no obedece"
+      ],
+      "visual": "Paneo por el borde del mundo: monitor 00:47, las tazas, y el ojo temblando atras."
+    },
+    {
+      "t": 33.0,
+      "tipo": "UTILIDAD",
+      "zona": "calma",
+      "linea": "La buena: casi siempre se va solo, en alrededor de una semana.",
+      "keywords": [
+        "se va solo"
+      ],
+      "visual": "El orbicular pasa a verde; la linea 0-7 dias se recorre con easing."
+    },
+    {
+      "t": 39.5,
+      "tipo": "UTILIDAD",
+      "zona": "calma",
+      "linea": "Dormir, bajar la cafeína y pausas de pantalla ayudan. Y no: no es falta de magnesio.",
+      "keywords": [
+        "ayudan",
+        "magnesio"
+      ],
+      "visual": "Tres fichas de papel con stagger; la de magnesio recibe una cruz suave, sin drama."
+    },
+    {
+      "t": 46.5,
+      "tipo": "UTILIDAD",
+      "zona": "calma",
+      "linea": "Si se prolonga, el párpado se cierra o aparece debilidad: profesional de la salud.",
+      "keywords": [
+        "profesional"
+      ],
+      "linea_de_consulta": true,
+      "chip": "Esto no es consejo médico",
+      "visual": "Anillos amarillos de atencion; la camara se aleja para no tapar el ojo."
+    },
+    {
+      "t": 52.5,
+      "tipo": "CTA",
+      "zona": "teaser",
+      "linea": "Y tus dedos en el agua se arrugan por NERVIOS, no por esponja. Te lo muestro mañana.",
+      "keywords": [
+        "nervios"
+      ],
+      "visual": "Descenso continuo calma->teaser (mismo travelling, sin corte): la mano y las ondas."
+    }
+  ],
+  "palabras_total": 129,
+  "reglas_aplicadas": "C1 arrival = t_real - clamp(0.35*duracion_beat, 0.55, 1.30); C2 power2.inOut encadenado con velocidad cero en la estacion (continuo, no un salto); C3 #drift se mueve siempre (keyframes x/y sine.inOut); C4 Z1/Z2/Z3 son travelling de scale, nunca corte; C5 cero opacity entre zonas: cada pieza nace en su beat dentro del mismo plano; C6 toda entrada con easing. Palabras 129 <= 165.",
+  "variedad": "combo [ojo+pulso rojo/azul | papel crema | travelling vertical continuo] - primer video del canal.",
+  "versiones_alternas": [
+    "hook mito: '¿Falta de magnesio? No: un músculo que se rebela.'",
+    "hook numérico: 'Tu párpado parpadea 15-20 veces por minuto. Esto es otra cosa.'"
+  ]
+}

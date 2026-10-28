@@ -1,0 +1,24 @@
+{
+  "slug": "S001-parpado-temblor",
+  "master": "data\\escenas\\S001-parpado-temblor\\master_final.mp4",
+  "paquetes": {
+    "tiktok": {
+      "caption": "¿Por qué te tiembla el párpado... sin que tú lo ordenes? #ciencia #cuerpo #sabiasque",
+      "hora_sugerida": "12:40",
+      "comentario_fijado": "Fuentes en el comentario fijado. Esto no reemplaza a un profesional de la salud."
+    },
+    "ytshorts": {
+      "title": "¿Por qué te tiembla el párpado... sin que tú lo ordenes?",
+      "hashtags": "#ciencia #cuerpo #sabiasque"
+    },
+    "igreels": {
+      "caption": "¿Por qué te tiembla el párpado... sin que tú lo ordenes? — Fuentes en el comentario fijado. Esto no reemplaza a un profesional de la salud.",
+      "hora_sugerida": "13:10"
+    },
+    "fbreels": {
+      "caption": "¿Por qué te tiembla el párpado... sin que tú lo ordenes?",
+      "hora_sugerida": "11:30"
+    }
+  },
+  "reglas": "hand-off humano: el dueño sube o agenda desde las apps oficiales. Sin bots de subida."
+}

@@ -1,0 +1,74 @@
+# Brazo de la fabrica: render diario SIN humano (Tico renovado.md §9 + §8-bis.4).
+# Cron lun-sab 10:40 UTC (07:40 ARG / 12:40 ES) toma la linea del dia en data/cola.txt.
+# El dueño puede re-renderizar cualquier slug YA: Actions > tico-render > Run workflow > slug.
+name: tico-render
+
+on:
+  schedule:
+    - cron: "40 10 * * 1-6"
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "slug a renderizar (vacio = el del dia en data/cola.txt)"
+        required: false
+        default: ""
+      quality:
+        description: "calidad de render"
+        required: false
+        default: "delivery"
+        type: choice
+        options: [draft, looks, delivery]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tico-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Elegir el slug del dia
+        id: slug
+        run: |
+          S="${{ github.event.inputs.slug }}"
+          if [ -z "$S" ]; then
+            DIA=$(date -u +%u)              # 1=Lun ... 6=Sab
+            S=$(sed -n "${DIA}p" data/cola.txt | tr -d ' \r')
+          fi
+          if [ -z "$S" ] || [ ! -d "data/escenas/$S" ]; then
+            echo "::error::slug vacio o inexistente en data/escenas/ ($S)"; exit 1
+          fi
+          echo "SLUG=$S" >> "$GITHUB_ENV"
+          echo "slug=$S" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r agente/requirements-ci.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: npx -y hyperframes browser install || echo "Chrome: lo baja el propio render"
+
+      - name: Pipeline (voz -> sfx -> comp -> render -> ensamble -> QC -> publicable)
+        run: python agente/run_pipeline.py --slug "$SLUG" --quality "${{ github.event.inputs.quality || 'delivery' }}"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: master-${{ env.SLUG }}
+          path: |
+            data/escenas/${{ env.SLUG }}/master_final.mp4
+            data/escenas/${{ env.SLUG }}/hoja_contacto.jpg
+            data/escenas/${{ env.SLUG }}/pipeline_report.json
+            data/escenas/${{ env.SLUG }}/comp.html
+            data/qc/
+          if-no-files-found: warn
