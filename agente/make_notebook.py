@@ -24,7 +24,8 @@ doc maestro). Tu PC no interviene en ninguna de las dos partes.
 | 5 | extra: A/B de voces edge-tts con la RECETA (Manual del dueño §11) | 2 min |
 
 **Setup único (Manual §2), antes de la primera corrida:**
-1. `REPO_URL` de la celda 1 → la URL de tu repo (público recomendado).
+1. `REPO_URL` de la celda 1 **ya viene puesto** a `EriicksonNTF/Colab-fabrica-video`. No hace falta
+   tocarla salvo que cambies de repo.
 2. Colab → la llave 🔑 de la barra lateral → *Snippet secrets* → agregá `GH_TOKEN` con un
    **fine-grained personal token** de GitHub que solo tenga *Contents: Read and write* en ese repo.
    El token viaja cifrado, no se imprime y nunca se commitea (§10.2: es parte de tu login GitHub).
@@ -39,7 +40,7 @@ CELDA_1 = '''# =================================================================
 # ============================================================================
 import os, pathlib, subprocess, time
 
-REPO_URL = "https://github.com/TU-USUARIO/fabrica-cuerpo-raro.git"   # <-- unica edicion obligatoria
+REPO_URL = "https://github.com/EriicksonNTF/Colab-fabrica-video.git"   # ya apunta al repo real
 RAMA     = "main"
 os.environ.setdefault("CEREBRO", "qwen3.5:9b")   # tag verificado 26-oct-2026 (CAMBIOS #4)
 CEREBRO = os.environ["CEREBRO"]

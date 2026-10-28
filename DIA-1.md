@@ -54,40 +54,47 @@ el resto del repo él solo, con tu token).
 
 ---
 
-## 2. Setup único — ~25 minutos, una vez en la vida
+## 2. Setup único — te quedan ~10 minutos
 
-1. **Creá el repo.** github.com → New repository → nombre `fabrica-cuerpo-raro` → **Public** →
-   crealo sin README.
-2. **Subí esta carpeta.** En la página del repo: *Add file → Upload files* → arrastrá el **contenido**
-   de `fabrica-cuerpo-raro/`. Tres detalles que importan:
-   - la carpeta `.github` es oculta: activá "ver archivos ocultos" en el explorador o subila aparte
-     (dentro de `.github` sólo va `workflows/render.yml`);
-   - **no arrastres los `.mp4` ni los `.wav`** que hay dentro de `data/escenas/S001-parpado-temblor/`:
-     son de la corrida local de prueba y GitHub Actions los vuelve a crear. Lo que tiene que llegar
-     de esa carpeta es **`script.json`**;
-   - el uploader web tiene techo de ~100 archivos y 25 MB por archivo. Si te pasa el límite, subi
-     primero `agente/`, `.github/`, `data/` y `assets/` en dos tandas.
-   `README.md` y `DIA-1.md` también van (son el mapa del repo).
-3. **El token (único trámite "técnico").** GitHub → Settings → Developer settings →
-   *Personal access tokens* → Fine-grained → **solo este repo** → permisos *Contents: Read and write*
-   → copialo.
-4. **Colab.** colab.research.google.com → *Subir* → elegí `notebook_cerebro.ipynb` (desde tu PC).
-   Abrí la llave 🔑 de la barra lateral → *Snippet secrets* → nombre `GH_TOKEN` → pegá el token →
-   marcá "Don't require login for runtime access".
-5. **Decile al notebook dónde está tu repo.** En la celda 1, cambiá
-   `REPO_URL = "https://github.com/TU-USUARIO/fabrica-cuerpo-raro.git"` por la URL real.
-6. Guardá el notebook en tu Drive (*Archivo → Guardar una copia en Drive*). Ya está: nunca más
-   volvés a hacer esto.
+**Ya está hecho por el brazo** (no lo repitas):
+
+- ✅ Repo creado y público: <https://github.com/EriicksonNTF/Colab-fabrica-video>, rama `main`.
+- ✅ Los 31 archivos subidos (1,9 MB). Sin `.mp4` ni `.wav`: el `.gitignore` los frena, y lo que
+  llegó de la escena es `script.json`, que es lo único que necesita el brazo.
+- ✅ El workflow `tico-render` está **activo y verificado parseado** (GitHub ya lo muestra por nombre,
+  no por ruta). Ojo: la primera versión del YAML tenía un error de sintaxis y GitHub **no** avisaba —
+  está arreglado y documentado en CAMBIOS #20.
+- ✅ Primera corrida de prueba en la nube: [run 40619491592](https://github.com/EriicksonNTF/Colab-fabrica-video/actions/runs/40619491592),
+  3 min 54 s, 9 pasos verdes, artifact con `master_final.mp4` y **QC `PASA`**.
+
+**Lo que sólo vos podés hacer** (es el token, y es a propósito):
+
+1. **Creá el token.** github.com → tu avatar → *Settings* → *Developer settings* →
+   *Personal access tokens* → **Fine-grained** → *Generate new token* → en *Repository access* elegí
+   **only Colab-fabrica-video** → en *Permissions* dejá **Contents: Read and write** y nada más →
+   copiá el token (`github_pat_...`).
+2. **Colab.** abrí <https://colab.research.google.com> → *Subir* → elegí
+   [notebook_cerebro.ipynb](file:///C:/Users/Erickson/Desktop/Muestras/fabrica-cuerpo-raro/notebook_cerebro.ipynb)
+   desde tu PC → abrí la llave 🔑 de la barra lateral → *Snippet secrets* → nombre `GH_TOKEN` → pegá el
+   token → marcá "Don't require login for runtime access".
+3. **Guardá el notebook en tu Drive** (*Archivo → Guardar una copia en Drive*). El `.ipynb` que está
+   en la PC es una copia de trabajo: la versión viva es la del Drive.
+
+Ya está: nunca más volvés a hacer esto. El paso 1 no lo puedo correr yo porque el token sale de tu
+sesión de GitHub y tiene que quedar cifrado en tu Colab, no en un archivo.
 
 ---
 
-## 3. Estrenar la fábrica con el video de prueba (sin cerebro, ~15 min)
+## 3. Renderizar un slug cuando se te ocurra (15 min, de los cuales vos mirás 1)
 
-El repo ya trae un guion completo y verificado: `S001-parpado-temblor`.
+La primera vez ya está corrida: el run 40619491592 del 27-oct dejó el `master_final.mp4` de
+`S001-parpado-temblor` en los artifacts de ese run. Este es el procedimiento para cualquier slug,
+incluido el del día siguiente.
 
 1. github.com → tu repo → **Actions** → *tico-render* → **Run workflow** → rama `main` →
    en *slug* escribí `S001-parpado-temblor` → *Run workflow*.
-2. Esperá **12-18 minutos**. El render corre en la máquina de GitHub, no en la tuya.
+2. Esperá. **Medido: 3 min 54 s** de punta a punta en el runner (no los 12-18 que suponía la guía).
+   El render corre en la máquina de GitHub, no en la tuya.
 3. Cuando termine (✔ verde): panel derecho **Artifacts** → `master-S001-parpado-temblor` →
    descargás un `.zip` con `master_final.mp4`, `hoja_contacto.jpg` y `pipeline_report.json`.
 4. Mirá el MP4 (60 s) y la hoja de contacto. Si el run quedó en rojo: abrí el log, bajá a la última
