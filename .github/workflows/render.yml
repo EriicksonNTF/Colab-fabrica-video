@@ -42,7 +42,10 @@ jobs:
             S=$(sed -n "${DIA}p" data/cola.txt | tr -d ' \r')
           fi
           if [ -z "$S" ] || [ ! -d "data/escenas/$S" ]; then
-            echo "::error::slug vacio o inexistente en data/escenas/ ($S)"; exit 1
+            echo "::error::slug vacio o inexistente en data/escenas/ ($S)"
+            echo "Slugs que SI existen (copiar el que imprimio la celda 2):"
+            ls -1 data/escenas/ || true
+            exit 1
           fi
           echo "SLUG=$S" >> "$GITHUB_ENV"
           echo "slug=$S" >> "$GITHUB_OUTPUT"

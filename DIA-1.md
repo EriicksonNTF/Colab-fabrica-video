@@ -98,6 +98,10 @@ incluido el del día siguiente.
 
 1. github.com → tu repo → **Actions** → *tico-render* → **Run workflow** → rama `main` →
    en *slug* escribí `S001-parpado-temblor` → *Run workflow*.
+   **El slug no se inventa:** es el que imprimió la celda 2 (`[ok] I015 -> S015-dedos-arrugados...`)
+   y tiene que existir en `data/escenas/`. Si no existe, el run corta con `::error::` y ahora lista
+   los que sí hay para copiar el bueno. Para el del día, dejá el campo vacío: toma la línea de
+   `data/cola.txt`.
 2. Esperá. **Medido en el runner: 3 min 11 s en `delivery`** (y 3 min 54 s en `draft`), no los 12-18
    min que suponía la biblia §9. El render corre en la máquina de GitHub, no en la tuya.
 3. Cuando termine (✔ verde): panel derecho **Artifacts** → `master-S001-parpado-temblor` →

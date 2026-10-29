@@ -416,3 +416,31 @@ los que deciden, y un slug reparado que perdió piezas queda `BLOQUEADO` con el 
 venían después no se validaron aunque ya estaban generados en memoria.
 **Efecto:** cada slug va en su propio `try/except`; si explota, queda `BLOQUEADO (excepcion)` en
 `data/qc/{slug}.md` con el mensaje y el bucle sigue. Un slug roto deja de costar el lote completo.
+
+### 30. El ANIMADOR inventaba el mundo: zonas propias, `aparece` en segundos y tipos que no existen
+**Motivo:** S016 (el único slug que llegó a escribirse en la corrida del 29-oct) quedó `BLOQUEADO` con
+53 fallas del validador. Leídas juntas, son tres desobediencias del contrato, no tres bugs:
+- **Zonas**: los beats apuntan a `ojo, silueta, circuito, calma, teaser` (lo que eligió el GUIONISTA en
+  su campo `zona`), pero el ANIMADOR creó `zona_hook, zona_nombre, zona_mecanismo...`. El validador
+  compara el id literal, así que fallan **todos** los beats.
+- **`aparece`**: el prompt dice "beat", el modelo escribió **segundos** (0.2, 2.5, 15.2, 45.0) y el
+  validador exige un entero 0..8.
+- **Tipos**: usó `tico` y `flash`, que no están en `REGISTRO` (12 primitivas). `tico` viene de la
+  personalidad §5.5, escrita para el personaje que ya no existe: el prompt dice "solo el registro"
+  pero el texto largo de la biblia lo contradice.
+Además: 3 URLs que devuelven 403/404 y un guion fuera de la ventana de 60 s. Eso es del INVESTIGADOR
+y del GUIONISTA; el validador los caza y por eso reintenta.
+**Efecto en `animador()`:** los tres datos van literales y sin ambigüedad en el prompt — la lista
+exacta de ids de zona que el mundo debe tener (ni una más), una tabla de beats con `i`, `tipo`, `zona`
+y `visual`, el vocabulario cerrado, y la prohibición explícita de `tico/flash/particula/personaje/flecha`
+con la alternativa correcta para cada caso (pulso→`anillo`, etiqueta→`bandera` con `texto`, palabra→
+`texto`). `aparece` se declara ENTERO 0..n-1 y se aclara que `t` es solo informativo.
+**Efecto en `slug_de()`:** el slug salía de cortar a 34 caracteres a mitad de palabra:
+`S016-hipn-gogica-mioclon-a-al-`, con guion colgando. Ahora se normaliza (sin acentos), se cortan
+palabras enteras (máx. 5, ~38 chars) y se descartan preposiciones finales:
+`S016-sacudida-hipnagogica-mioclonia`. El prefijo `S{id}` sigue garantizando unicidad.
+**Efecto en el workflow:** cuando el slug no existe, además del `::error::` ahora hace `ls data/escenas/`
+y lista los válidos. El error se produjo por escribir a mano un slug de ejemplo que no existía.
+**Honesto:** esto es un arreglo de prompt, verificado en sintaxis y en los datos observados, **no
+todavía de punta a punta**. Un 9B puede volver a desobedecer; la red de seguridad es la celda 3, que
+deja el slug `BLOQUEADO` con el motivo escrito en vez de renderizar algo mal.

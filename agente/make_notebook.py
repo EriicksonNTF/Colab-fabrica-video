@@ -149,7 +149,7 @@ CELDA_2 = '''# =================================================================
 # Los prompts se leen de "Tico renovado.md" del repo: no hay copia que se desactualice.
 # Muralla 1: salida enmoldeada (format = JSON-Schema). Muralla 2: validate.py en la celda 3.
 # ============================================================================
-import json, os, pathlib, re, subprocess, sys
+import json, os, pathlib, re, subprocess, sys, unicodedata
 from typing import Any
 import ollama
 from pydantic import BaseModel
@@ -360,8 +360,18 @@ TRADUCCION OBLIGATORIA DE TU ROL EN ESTE PIPELINE (no es opcional, es el contrat
 """ .replace("TIPOS", ", ".join(sorted(REGISTRO)))
 
 def slug_de(idea, fs):
-    base = re.sub(r"[^a-z0-9]+", "-", (fs["tema"] + " " + idea["id"]).lower()).strip("-")[:34]
-    return f"S{int(idea['id'][1:]):03d}-{base.split('-', 1)[-1]}"
+    """Slug de palabras enteras y sin acentos. Antes se cortaba a 34 caracteres a mitad de palabra y
+    salia 'S016-hipn-gogica-mioclon-a-al-', con guion colgando; el prefijo S{id} ya da unicidad."""
+    limpio = unicodedata.normalize("NFKD", fs["tema"])
+    limpio = "".join(c for c in limpio if not unicodedata.combining(c)).lower()
+    palabras = [p for p in re.sub(r"[^a-z0-9]+", "-", limpio).split("-") if p][:5]
+    while len(palabras) > 2 and len("-".join(palabras)) > 38:
+        palabras.pop()
+    CORTAS = {"al", "a", "de", "del", "el", "en", "la", "las", "lo", "los", "un", "una", "y", "o",
+              "que", "por"}
+    while len(palabras) > 2 and palabras[-1] in CORTAS:
+        palabras.pop()
+    return f"S{int(idea['id'][1:]):03d}-" + "-".join(palabras)
 
 def investigar(idea, errores=""):
     sys_txt = (P_INVESTIGADOR + "\\n\\nSALIDA: el JSON del contrato §4.2. Cada claim con su URL real "
@@ -379,7 +389,29 @@ def guionista(fs, idea, errores=""):
                      molde(Guion), 0.3)
 
 def animador(fs, sc, errores=""):
-    sys_txt = P_ANIMADOR_LISTO + "\\n\\nCONTRATO DE REFERENCIA (para que tus `visual` tengan dibujo):\\n" + C_SCRIPT
+    # El ANIMADOR inventaba sus propios ids de zona (zona_hook, zona_nombre...) mientras los beats
+    # apuntan a ojo/silueta/circuito/calma/teaser, ponia `aparece` en segundos y usaba tipos que no
+    # existen (tico, flash). Los tres datos van literales en el prompt (CAMBIOS #30).
+    zonas = []
+    for b in sc["beats"]:
+        if b.get("zona") and b["zona"] not in zonas:
+            zonas.append(b["zona"])
+    tabla = [{"i": k, "t": b["t"], "tipo": b["tipo"], "zona": b.get("zona"), "visual": b.get("visual")}
+             for k, b in enumerate(sc["beats"])]
+    sys_txt = (P_ANIMADOR_LISTO + "\\n\\nCONTRATO DE REFERENCIA (para que tus `visual` tengan "
+               "dibujo):\\n" + C_SCRIPT
+               + "\\n\\nZONAS OBLIGATORIAS: el mundo tiene EXACTAMENTE estas zonas y con estos ids, "
+               "ni una mas: " + ", ".join(zonas) + ". Cada beat declara su zona en la tabla de abajo "
+               "y el validador compara el id literal: si inventas otro id, el slug muere."
+               + "\\n\\nBEATS (usa el numero de `i` en `aparece`; `t` es solo informativo):\\n"
+               + json.dumps(tabla, ensure_ascii=False)
+               + "\\n\\nVOCABULARIO CERRADO: " + ", ".join(sorted(REGISTRO)) + " (solo para `tipo`). "
+               "NO existe `tico`, `flash`, `particula`, `personaje` ni `flecha`: si el beat pide un "
+               "pulso usa `anillo`; una etiqueta, `bandera` con `texto` de 1 a 16 caracteres; una "
+               "palabra suelta, `texto`."
+               + "\\n\\n`aparece` es un ENTERO de 0 a " + str(len(tabla) - 1)
+               + " (indice del beat), NO segundos ni tiempos. Cada pieza nueva aparece en el beat "
+               "donde se nombra por primera vez.")
     return contratar(sys_txt, json.dumps({"beats": sc["beats"], "slug": sc["slug"]},
                                          ensure_ascii=False) + errores, "json", 0.2)
 
