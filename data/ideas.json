@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "26-oct-2026",
+  "actualizado": "29-Oct-2026",
   "estado_canal": "PRE-LANZAMIENTO — sin histórico de variedad todavía",
   "ideas": [
     {
@@ -8,39 +8,58 @@
       "hook": "¿Por qué te tiembla el párpado sin que tú lo ordenes?",
       "fenomeno": "Mioquimia / blefaroespasmo leve: micro-espasmo del músculo que cierra el ojo.",
       "mito_a_corregir": "No es falta de magnesio (la ficha consultada no lo lista como causa).",
-      "tier_max": "C", "riesgo_medico": "bajo",
-      "estado": "EN_PRODUCCION", "slug": "S001-parpado-temblor", "potencial_retencion": 8
+      "tier_max": "C",
+      "riesgo_medico": "bajo",
+      "estado": "EN_PRODUCCION",
+      "slug": "S001-parpado-temblor",
+      "potencial_retencion": 8
     },
     {
       "id": "I015",
       "hook": "Tus dedos se arrugan en el agua. Y NO es el agua.",
       "fenomeno": "Vasoconstricción simpática (nervios), no absorción: reflejo que mejora el agarre en húmedo.",
       "mito_a_corregir": "'Se arrugan porque se hinchan de agua' — falso.",
-      "tier_max": "B", "riesgo_medico": "bajo",
-      "estado": "LISTA_PARA_INVESTIGAR", "potencial_retencion": 9,
+      "tier_max": "B",
+      "riesgo_medico": "bajo",
+      "estado": "LISTA_PARA_INVESTIGAR",
+      "potencial_retencion": 9,
       "notas": "Secuela anunciada en el CTA de S001. No publicar antes del día siguiente."
     },
     {
       "id": "I016",
       "hook": "Ese 'golpetazo' al quedarte dormido: casi todos lo tenemos.",
       "fenomeno": "Sacudida hipnágogica (mioclonía al inicio del sueño); el mecanismo exacto aún se discute.",
-      "tier_max": "?", "riesgo_medico": "bajo",
-      "estado": "LISTA_PARA_INVESTIGAR", "potencial_retencion": 9,
+      "tier_max": "?",
+      "riesgo_medico": "bajo",
+      "estado": "LISTA_PARA_INVESTIGAR",
+      "potencial_retencion": 9,
       "notas": "Episodio 'lo que la ciencia todavía discute': narrar el tier ? como contenido, no como defecto."
     },
     {
-      "id": "I017", "hook": "¿Por qué NO puedes hacerte cosquillas a ti mismo?",
+      "id": "I017",
+      "hook": "¿Por qué NO puedes hacerte cosquillas a ti mismo?",
       "fenomeno": "El cerebelo predice tu propio tacto y lo atenúa (modelo motor hacia adelante).",
-      "tier_max": "A", "riesgo_medico": "bajo", "estado": "LISTA_PARA_INVESTIGAR", "potencial_retencion": 8
+      "tier_max": "A",
+      "riesgo_medico": "bajo",
+      "estado": "LISTA_PARA_INVESTIGAR",
+      "potencial_retencion": 8
     },
     {
-      "id": "I018", "hook": "Los puntos blancos de las uñas: jamás fue el calcio.",
+      "id": "I018",
+      "hook": "Los puntos blancos de las uñas: jamás fue el calcio.",
       "fenomeno": "Leuconiquia puntual = microgolpes a la matriz de la uña.",
-      "tier_max": "B", "riesgo_medico": "bajo", "estado": "LISTA_PARA_INVESTIGAR", "potencial_retencion": 7
+      "tier_max": "B",
+      "riesgo_medico": "bajo",
+      "estado": "LISTA_PARA_INVESTIGAR",
+      "potencial_retencion": 7
     }
   ],
   "vetadas": [
-    { "titulo": "remedio del bicarbonato para el ácido úrico", "razon": "consejo médico directo + sin tier demostrado", "vetada_por": "QC-CIENTÍFICO" }
+    {
+      "titulo": "remedio del bicarbonato para el ácido úrico",
+      "razon": "consejo médico directo + sin tier demostrado",
+      "vetada_por": "QC-CIENTÍFICO"
+    }
   ],
   "reglas_releer": "No repetir un tema a menos de 60 días; no dos temas del mismo órgano seguidos; backlog siempre >= 7 en LISTA_PARA_INVESTIGAR antes de terminar un lote."
 }
