@@ -11,6 +11,7 @@ import asyncio
 import json
 import subprocess
 import sys
+import threading
 from pathlib import Path
 
 SR = 48000
@@ -76,6 +77,30 @@ async def synth_clip(text, voice, rate, pitch, mp3, words_out):
     return words
 
 
+def _run_async(coro):
+    """asyncio.run() revienta dentro de un kernel de Colab/IPython, que ya tiene un loop corriendo
+    ('asyncio.run() cannot be called from a running event loop'). Si hay loop, el coroutine se
+    ejecuta en un thread propio con su loop nuevo; en CI no hay loop y va directo por asyncio.run."""
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    caja = {}
+
+    def _worker():
+        try:
+            caja["r"] = asyncio.run(coro)
+        except BaseException as exc:  # noqa: BLE001 - se re-lanza en el thread principal
+            caja["e"] = exc
+
+    hilo = threading.Thread(target=_worker)
+    hilo.start()
+    hilo.join()
+    if "e" in caja:
+        raise caja["e"]
+    return caja.get("r")
+
+
 def build(script_path, out_dir, voice_id=None, rate_override=None, fallback=False):
     script = json.loads(Path(script_path).read_text(encoding="utf-8"))
     out = Path(out_dir)
@@ -93,7 +118,7 @@ def build(script_path, out_dir, voice_id=None, rate_override=None, fallback=Fals
         pitch = "+2Hz" if b["tipo"] == "HOOK" else "+0Hz"
         mp3, wj = out / f"beat{i:02d}.mp3", out / f"beat{i:02d}.words.json"
         try:
-            asyncio.run(synth_clip(b["linea"], vid, rate, pitch, mp3, wj))
+            _run_async(synth_clip(b["linea"], vid, rate, pitch, mp3, wj))
         except Exception as exc:  # noqa: BLE001 - edge puede caer sin aviso
             raise RuntimeError(f"voz beat {i} ({b['tipo']}) fallo: {exc}") from exc
         wav = decode_wav(mp3, out / f"beat{i:02d}.wav")

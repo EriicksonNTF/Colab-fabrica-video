@@ -243,14 +243,38 @@ def molde(modelo):
     cerrar(s)
     return s
 
+def _json_txt(t):
+    """El modelo puede devolver prosa o vacio. Antes eso moria con 'Expecting value: line 1 column 1
+    (char 0)', que no dice nada; ahora se corta el primer objeto balanceado y, si no hay, se muestra
+    que devolvio y cuanto."""
+    i, j = t.find("{"), t.rfind("}")
+    if i < 0 or j <= i:
+        raise RuntimeError("el cerebro no devolvio JSON (" + str(len(t)) + " chars); arranque: "
+                           + repr(t[:200]))
+    return json.loads(t[i:j + 1])
+
+def _chat(system, usuario, schema, temp):
+    msgs = [{"role": "system", "content": system}, {"role": "user", "content": usuario}]
+    # num_ctx 8192: los prompts §5.x + el contrato no entran comodos en los 4096 por defecto.
+    # think=False: un modelo con "thinking" gasta num_predict entero pensando y entrega content vacio,
+    # que es exactamente el 'Expecting value: line 1 column 1' de la primera corrida.
+    opc = {"temperature": temp, "num_predict": 6144, "num_ctx": 8192}
+    try:
+        return ollama.chat(model=CEREBRO, messages=msgs, format=schema, options=opc, think=False)
+    except TypeError:                          # cliente ollama viejo: no conoce `think`
+        return ollama.chat(model=CEREBRO, messages=msgs, format=schema, options=opc)
+
 def contratar(system, usuario, schema, temp=0.2):
-    r = ollama.chat(model=CEREBRO,
-                    messages=[{"role": "system", "content": system},
-                              {"role": "user", "content": usuario}],
-                    format=schema,
-                    options={"temperature": temp, "num_predict": 4096})
-    t = r["message"]["content"]
-    return json.loads(t[t.find("{"): t.rfind("}") + 1])
+    r = _chat(system, usuario, schema, temp)
+    t = (r["message"]["content"] or "").strip()
+    if not t:
+        print("  [reintento] el cerebro devolvio vacio; se repite con /no_think")
+        r = _chat(system + " /no_think", usuario, schema, temp)
+        t = (r["message"]["content"] or "").strip()
+    if not t:
+        raise RuntimeError("respuesta vacia del cerebro: gasto los tokens pensando y no escribio "
+                           "la salida. Probá CEREBRO=qwen3.5:4b o subi num_predict.")
+    return _json_txt(t)
 
 # --- el ANIMADOR ya no escribe HTML: entrega el shot-list de piezas (data/qc/CAMBIOS.md #5) -------
 P_ANIMADOR_LISTO = P_ANIMADOR + """
@@ -447,11 +471,15 @@ cola = listos[:7] or ["S001-parpado-temblor"]
 pathlib.Path("data/cola.txt").write_text("\\n".join(cola + [""] * 0) + "\\n", encoding="utf-8")
 print(pathlib.Path("data/cola.txt").read_text(encoding="utf-8"))
 
+# El clon de Colab es --depth 1 y puede tener dias: si el repo se movio, el push se rechaza con
+# "the remote contains work that you do not have locally". Rebase antes de empujar.
 for cmd in (["git", "add", "data/"],
             ["git", "commit", "-m", f"lote dominguero {time.strftime('%d-%b-%Y')} ({len(cola)} slugs)"],
-            ["git", "push"]):
+            ["git", "pull", "--rebase", "--autostash", "origin", "main"],
+            ["git", "push", "origin", "HEAD:main"]):
     p = subprocess.run(cmd, capture_output=True, text=True)
     print("$", *cmd, "->", (p.stdout or p.stderr).strip()[-300:])
+print(subprocess.run(["git", "log", "--oneline", "-2"], capture_output=True, text=True).stdout.strip())
 print("Despues de esto: GitHub Actions renderiza el de hoy en ~3 min (medido). Vos cerras la notebook.")
 '''
 
@@ -460,10 +488,11 @@ CELDA_5 = '''# =================================================================
 # Sintetiza el guion de un slug con cada voz Microsoft en los rates de receta y baja un zip.
 # Cero claves, cero cuentas: edge-tts. Escuchá la misma frase a +8% y decide con retencion real.
 # ============================================================================
-import json, pathlib, sys, zipfile
+import importlib, json, pathlib, sys, zipfile
 
 sys.path.insert(0, "agente")
 import voice as V
+importlib.reload(V)   # sin esto, un kernel que ya importo voice.py sigue usando la version vieja
 
 SLUG_AB = "S001-parpado-temblor"
 VOCES_AB = ["es-ES-AlvaroNeural", "es-ES-JorgeNeural", "es-ES-TomasNeural",
@@ -477,9 +506,12 @@ for vid in VOCES_AB:
         print(f"[ok] {vid}: {info['duracion_s']}s, sync {info['sync_mode']}")
     except Exception as exc:                                 # noqa: BLE001 - la muestra sigue
         print(f"[salto] {vid}: {exc}")
+mp3s = list(carp.rglob("voz.mp3"))
+if not mp3s:
+    raise RuntimeError("ninguna voz genero audio: mira los [salto] de arriba (un zip vacio no sirve)")
 ziph = pathlib.Path(f"ab-voz-{SLUG_AB}.zip")
 with zipfile.ZipFile(ziph, "w", zipfile.ZIP_DEFLATED) as z:
-    for f in carp.rglob("voz.mp3"):
+    for f in mp3s:
         z.write(f, f.relative_to(carp))
 print("bajá el zip y escuchá: " + str(ziph))
 try:

@@ -359,3 +359,35 @@ habría vetado nunca nada: el defecto era silencioso en su efecto y ruidoso en s
 `salteadas por estar vetadas: I0xx`, porque antes el SKIP del §7-2 era invisible.
 **Verificado con `data/ideas.json` real:** 0 salteadas, 4 candidatas (I015 9, I016 9, I017 8, I018 7).
 Con una vetada de prueba igual al hook de I017: saltea I017 y quedan 3.
+
+### 27. La primera corrida real del cerebro: 4 slugs caídos, el push rechazado y la voz sin loop
+**Motivo:** primera corrida completa de la notebook en Colab (29-oct-2026). Tres fallas distintas:
+
+1. **Celda 2 · `[salto] I015..I018: Expecting value: line 1 column 1 (char 0)`.** Ese mensaje es
+   `json.loads("")`: el modelo devolvió `content` vacío. La causa es el *thinking*: `qwen3.5:9b` es
+   un modelo que razona, y Ollama manda ese razonamiento por `message.thinking`; con
+   `num_predict: 4096` los 4096 tokens se iban en pensar y `content` llegaba vacío. Además `num_ctx`
+   quedaba en el default (4096) y los prompts §5.x + el contrato no entran cómodos ahí.
+   **Efecto:** `contratar()` ahora pide `think=False` (con fallback `TypeError` para clientes viejos
+   que no conocen el parámetro), sube a `num_ctx: 8192` / `num_predict: 6144`, y si igual llega
+   vacío reintenta una vez con `/no_think`. El error ya no es `Expecting value`: `_json_txt()` dice
+   cuántos caracteres llegaron y muestra el arranque de la respuesta.
+2. **Celda 4 · `! [rejected] ... the remote contains work that you do not have locally`.** El clon de
+   Colab es `--depth 1` y se hizo antes de los commits de los parches 25-26, así que su `main` estaba
+   atrás. **Efecto:** la celda 4 hace `git pull --rebase --autostash origin main` antes del push y
+   termina imprimiendo `git log --oneline -2`, para que se vea si quedó arriba o no.
+3. **Celda 5 · `asyncio.run() cannot be called from a running event loop` en las 7 voces, y el zip
+   salió vacío.** `voice.build()` llamaba `asyncio.run(synth_clip(...))` dentro del bucle de beats, y
+   el kernel de Colab ya tiene un event loop corriendo. En CI no se notó porque ahí no hay loop.
+   **Efecto:** `voice._run_async()` corre el coroutine en un thread propio con su loop cuando ya hay
+   uno activo, y sigue usando `asyncio.run` cuando no lo hay (CI). Probado en los dos caminos, y con
+   una excepción dentro del coroutine: se re-lanza en el hilo principal. La celda 5 además hace
+   `importlib.reload(V)` (un kernel que ya importó `voice.py` sigue usando el módulo viejo) y falla
+   con un mensaje claro si ningún mp3 se generó, en vez de escribir un zip vacío.
+
+**Lo que NO es un error:** el `2566` al final de la celda 2 es el valor de retorno de
+`Path.write_text()` (cantidad de caracteres), que el notebook muestra como salida de la celda.
+
+**Ninguna de las celdas produce un MP4.** La notebook solo escribe `data/` y hace push; el video lo
+hace GitHub Actions (`tico-render`). Con la celda 2 caída no hubo slug nuevo y por eso no había nada
+para ver.
