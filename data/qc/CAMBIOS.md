@@ -391,3 +391,28 @@ Con una vetada de prueba igual al hook de I017: saltea I017 y quedan 3.
 **Ninguna de las celdas produce un MP4.** La notebook solo escribe `data/` y hace push; el video lo
 hace GitHub Actions (`tico-render`). Con la celda 2 caída no hubo slug nuevo y por eso no había nada
 para ver.
+
+### 28. El ANIMADOR cortaba el JSON: el prompt se comía el contexto
+**Motivo:** con `contratar` ya arreglado (entrada 27), la celda 3 avanzó de verdad y murió en
+`json.loads` con `Expecting ',' delimiter: line 169 column 8 (char 4796)` durante un reintento de
+S016. Ese corte mide 4 796 caracteres, o sea ~1 400 tokens: no es `num_predict` (6 144). Es el
+**contexto**: `num_ctx: 8192` y el prompt del ANIMADOR —personalidad §5.5 + contrato §4.3 completo +
+todos los beats del guion— se lo comía casi entero; al modelo le quedaba poco margen y Ollama cortaba
+la salida con `done_reason=length`. El síntoma no es "falta memoria": es un JSON a medio escribir
+cuya primera falta es una coma, que fue exactamente el error.
+**Efecto:** `NUM_CTX` pasa a **16 384** por defecto (configurable con la env `NUM_CTX`; en T4 el 9B Q4
++ 16k de KV entra en ~9 GB de 16). `contratar()` ahora **repara antes de rendirse**: `_cerrar()`
+genera tres candidatos —quitar la coma final y cerrar lo abierto, recortar a la última estructura
+completa, recortar a la última coma— y el que parsee gana; el caso 3 (último miembro a medio escribir)
+es el que se veía. Si ninguno parsea, reintenta **una** vez a temperatura 0 pidiendo el JSON cerrado
+y con la instrucción explícita de usar menos zonas/piezas antes que cortar. El error final incluye
+`done_reason` y la cola del texto, así que la próxima vez se sabe si fue longitud o formato.
+**Honesto:** reparar puede devolver un JSON válido pero **incompleto** (por ejemplo, sin la última
+zona). Eso no se acepta por fe: los validadores de la celda 3 (`zona inexistente`, `piezas`, §6.9) son
+los que deciden, y un slug reparado que perdió piezas queda `BLOQUEADO` con el motivo escrito.
+
+### 29. La celda 3 se llevaba puesto el lote entero al primer slug roto
+**Motivo:** el `JSONDecodeError` de S016 cortó la celda 3 en el bucle de reintentos: los slugs que
+venían después no se validaron aunque ya estaban generados en memoria.
+**Efecto:** cada slug va en su propio `try/except`; si explota, queda `BLOQUEADO (excepcion)` en
+`data/qc/{slug}.md` con el mensaje y el bucle sigue. Un slug roto deja de costar el lote completo.

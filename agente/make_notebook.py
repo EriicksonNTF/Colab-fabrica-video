@@ -243,22 +243,70 @@ def molde(modelo):
     cerrar(s)
     return s
 
+NUM_CTX = int(os.getenv("NUM_CTX", "16384"))   # el prompt del ANIMADOR + su salida no entran en 8k
+
+def _motivo(r):
+    try:
+        return str(r["done_reason"] or "")
+    except Exception:
+        return ""
+
+def _cerrar(t):
+    """Candidatos para rescatar un JSON cortado, del menos al mas agresivo: (1) tal cual sin la coma
+    final y cerrando lo abierto; (2) recortado en la ultima estructura completa; (3) recortado en la
+    ultima coma, que es lo que salva el caso tipico: el ultimo miembro quedo a medio escribir."""
+    pila, cadena, esc, cierres, comas = [], False, False, [], []
+    for k, ch in enumerate(t):
+        if cadena:
+            if esc:
+                esc = False
+            elif ch == "\\\\":
+                esc = True
+            elif ch == '"':
+                cadena = False
+        elif ch == '"':
+            cadena = True
+        elif ch in "{[":
+            pila.append("}" if ch == "{" else "]")
+        elif ch in "}]":
+            if pila:
+                pila.pop()
+            cierres.append((k + 1, list(pila)))
+        elif ch == ",":
+            comas.append((k, list(pila)))
+    out = [t.rstrip().rstrip(",") + "".join(reversed(pila))]
+    if cierres:
+        k, p = cierres[-1]
+        out.append(t[:k].rstrip().rstrip(",") + "".join(reversed(p)))
+    if comas:
+        k, p = comas[-1]
+        out.append(t[:k] + "".join(reversed(p)))
+    return out
+
 def _json_txt(t):
-    """El modelo puede devolver prosa o vacio. Antes eso moria con 'Expecting value: line 1 column 1
-    (char 0)', que no dice nada; ahora se corta el primer objeto balanceado y, si no hay, se muestra
-    que devolvio y cuanto."""
-    i, j = t.find("{"), t.rfind("}")
-    if i < 0 or j <= i:
+    """El modelo puede devolver prosa, vacio o un JSON cortado a mitad: cuando el prompt se come el
+    contexto, Ollama corta la salida con done_reason=length y el error cae en la primera coma que
+    falta. Antes todo eso moria con 'Expecting value: line 1 column 1 (char 0)'."""
+    i = t.find("{")
+    if i < 0:
         raise RuntimeError("el cerebro no devolvio JSON (" + str(len(t)) + " chars); arranque: "
                            + repr(t[:200]))
-    return json.loads(t[i:j + 1])
+    cuerpo = t[i:]
+    j = cuerpo.rfind("}")
+    candidatos = ([cuerpo] if j > 0 else []) + ([cuerpo[:j + 1]] if j > 0 else []) + _cerrar(cuerpo)
+    for cand in candidatos:
+        try:
+            return json.loads(cand)
+        except json.JSONDecodeError:
+            pass
+    raise RuntimeError("JSON roto (" + str(len(cuerpo)) + " chars); cola: " + repr(cuerpo[-140:]))
 
 def _chat(system, usuario, schema, temp):
     msgs = [{"role": "system", "content": system}, {"role": "user", "content": usuario}]
-    # num_ctx 8192: los prompts §5.x + el contrato no entran comodos en los 4096 por defecto.
-    # think=False: un modelo con "thinking" gasta num_predict entero pensando y entrega content vacio,
-    # que es exactamente el 'Expecting value: line 1 column 1' de la primera corrida.
-    opc = {"temperature": temp, "num_predict": 6144, "num_ctx": 8192}
+    # think=False: un modelo con "thinking" gasta num_predict entero pensando y entrega content vacio.
+    # NUM_CTX: el prompt del ANIMADOR (personalidad + contrato §4.3 + los beats) es el mas largo de los
+    # tres; con 8192 el contexto se llenaba antes de terminar la salida y el JSON llegaba cortado.
+    opc = {"temperature": temp, "num_predict": 6144, "num_ctx": NUM_CTX}
     try:
         return ollama.chat(model=CEREBRO, messages=msgs, format=schema, options=opc, think=False)
     except TypeError:                          # cliente ollama viejo: no conoce `think`
@@ -274,7 +322,18 @@ def contratar(system, usuario, schema, temp=0.2):
     if not t:
         raise RuntimeError("respuesta vacia del cerebro: gasto los tokens pensando y no escribio "
                            "la salida. Probá CEREBRO=qwen3.5:4b o subi num_predict.")
-    return _json_txt(t)
+    try:
+        return _json_txt(t)
+    except RuntimeError as e:
+        print("  [reintento] " + str(e)[:120] + " (done_reason=" + _motivo(r) + ")")
+        r = _chat(system, usuario + "\\n\\nIMPORTANTE: devolve el JSON completo y cerrado; si no "
+                  "entra, usa menos zonas y menos piezas, pero no cortes el JSON.", schema, 0.0)
+        t = (r["message"]["content"] or "").strip()
+        try:
+            return _json_txt(t)
+        except RuntimeError:
+            raise RuntimeError(str(e)[:160] + " | el segundo intento tambien vino roto (done_reason="
+                               + _motivo(r) + "). Subi NUM_CTX.")
 
 # --- el ANIMADOR ya no escribe HTML: entrega el shot-list de piezas (data/qc/CAMBIOS.md #5) -------
 P_ANIMADOR_LISTO = P_ANIMADOR + """
@@ -431,23 +490,33 @@ def variedad(slug, r):
 
 MAX_INTENTOS = 3                                             # 1 + 2 rondas, coherente con §8-bis.2
 for slug, r in list(LOTE_HECHO.items()):
-    errs = variedad(slug, r) + revisar(slug, r)
-    intento = 1
-    while errs and intento < MAX_INTENTOS:
-        print(f"[reintento {intento}] {slug}: {errs[:3]}")
-        LOTE_HECHO[slug] = r = generar(r["idea"], errores=errs)
+    try:
         errs = variedad(slug, r) + revisar(slug, r)
-        intento += 1
-    escribir(slug, r)
-    r["estado"] = "MASTER-READY" if not errs else "BLOQUEADO"
-    pathlib.Path("data/qc").mkdir(exist_ok=True)
-    pathlib.Path(f"data/qc/{slug}.md").write_text(
-        f"# {slug} · validacion del cerebro\\n\\n"
-        f"- fecha: {time.strftime('%d-%b-%Y')} · intentos: {intento}\\n"
-        f"- estado: **{r['estado']}**\\n\\n"
-        + ("sin fallas\\n" if not errs else "".join(f"- FALLA: {e}\\n" for e in errs)),
-        encoding="utf-8")
-    print(("  [listo] " if not errs else "  [BLOQUEADO] ") + slug + (" " + str(errs[:2]) if errs else ""))
+        intento = 1
+        while errs and intento < MAX_INTENTOS:
+            print(f"[reintento {intento}] {slug}: {errs[:3]}")
+            LOTE_HECHO[slug] = r = generar(r["idea"], errores=errs)
+            errs = variedad(slug, r) + revisar(slug, r)
+            intento += 1
+        escribir(slug, r)
+        r["estado"] = "MASTER-READY" if not errs else "BLOQUEADO"
+        pathlib.Path("data/qc").mkdir(exist_ok=True)
+        pathlib.Path(f"data/qc/{slug}.md").write_text(
+            f"# {slug} · validacion del cerebro\\n\\n"
+            f"- fecha: {time.strftime('%d-%b-%Y')} · intentos: {intento}\\n"
+            f"- estado: **{r['estado']}**\\n\\n"
+            + ("sin fallas\\n" if not errs else "".join(f"- FALLA: {e}\\n" for e in errs)),
+            encoding="utf-8")
+        print(("  [listo] " if not errs else "  [BLOQUEADO] ") + slug
+              + (" " + str(errs[:2]) if errs else ""))
+    except Exception as exc:                                 # noqa: BLE001 - un slug no mata el lote
+        pathlib.Path("data/qc").mkdir(exist_ok=True)
+        pathlib.Path(f"data/qc/{slug}.md").write_text(
+            f"# {slug} · validacion del cerebro\\n\\n"
+            f"- fecha: {time.strftime('%d-%b-%Y')}\\n"
+            f"- estado: **BLOQUEADO (excepcion)**\\n\\n- FALLA: {exc}\\n",
+            encoding="utf-8")
+        print(f"  [BLOQUEADO] {slug}: {exc}")
 
 print("\\nAprobacion humana: leé los factsets y los ganchos de data/qc/*.md antes de la celda 4.")
 '''
