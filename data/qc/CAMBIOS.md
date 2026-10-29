@@ -347,3 +347,15 @@ un traceback.
 **Regla que sale de acá:** un `assert` sobre un valor de API opcional tiene que decir *qué* falta y
 *cómo se arregla*. `userdata.get()` sin excepción + `assert` produce un error que acusa al usuario de
 algo que puede no haber hecho mal.
+
+### 26. `set(vetadas)` reventaba: las vetadas son objetos, no ids
+**Motivo:** la celda 2 moría con `TypeError: unhashable type: 'dict'` en
+`VETADAS = set(IDEAS.get("vetadas", []))`. El canon §4.1 define cada vetada como
+`{titulo, razon, vetada_por}` — un objeto — y los objetos no son hashables. Peor: el filtro comparaba
+`i["id"] not in VETADAS`, y **las vetadas no llevan `id`**. Aunque el `set` hubiera funcionado, no
+habría vetado nunca nada: el defecto era silencioso en su efecto y ruidoso en su síntoma.
+**Efecto:** se normaliza el texto (minúsculas, espacios colapsados) y se compara contra `id`, `hook`,
+`fenomeno` y `mito_a_corregir` de cada idea. Cuando una idea queda fuera se imprime
+`salteadas por estar vetadas: I0xx`, porque antes el SKIP del §7-2 era invisible.
+**Verificado con `data/ideas.json` real:** 0 salteadas, 4 candidatas (I015 9, I016 9, I017 8, I018 7).
+Con una vetada de prueba igual al hook de I017: saltea I017 y quedan 3.

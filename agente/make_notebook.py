@@ -317,8 +317,33 @@ def generar(idea, errores=None):
     return {"slug": slug, "idea": idea, "factset": fs, "script": sc}
 
 IDEAS = json.loads(pathlib.Path("data/ideas.json").read_text(encoding="utf-8"))
-VETADAS = set(IDEAS.get("vetadas", []))
-pend = [i for i in IDEAS["ideas"] if i["estado"] == "LISTA_PARA_INVESTIGAR" and i["id"] not in VETADAS]
+
+def _norm(s):
+    return " ".join(str(s or "").lower().split())
+
+def _vetadas(d):
+    """§4.1: cada vetada es {titulo, razon, vetada_por} y NO tiene id, por eso `set(vetadas)`
+    revienta con 'unhashable type: dict'. Se comparan textos normalizados; ante la duda se
+    saltea, porque el muro medico pesa mas que perder una idea."""
+    out = []
+    for v in d.get("vetadas", []):
+        if isinstance(v, dict):
+            out += [t for t in (_norm(v.get("titulo")), _norm(v.get("id"))) if t]
+        elif v:
+            out.append(_norm(v))
+    return out
+
+VETADAS = _vetadas(IDEAS)
+
+def vetada(idea):
+    textos = [_norm(idea.get(k)) for k in ("id", "hook", "fenomeno", "mito_a_corregir")]
+    return any(t and (t == v or v in t or t in v) for v in VETADAS for t in textos)
+
+candidatas = [i for i in IDEAS["ideas"] if i["estado"] == "LISTA_PARA_INVESTIGAR"]
+salteadas_por_vetada = [i["id"] for i in candidatas if vetada(i)]
+if salteadas_por_vetada:
+    print("salteadas por estar vetadas:", ", ".join(salteadas_por_vetada))
+pend = [i for i in candidatas if not vetada(i)]
 pend.sort(key=lambda i: -int(i.get("potencial_retencion", 0)))
 LOTE = int(os.getenv("LOTE", "7"))
 print(f"{len(pend)} candidatas; se procesan {min(LOTE, len(pend))} por potencial de retencion")
