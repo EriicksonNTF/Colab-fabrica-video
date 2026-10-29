@@ -37,6 +37,13 @@ aprobado como excepción, y corrés las mismas celdas.
 
 CELDA_1 = '''# ============================================================================
 # CELDA 1 · ENTORNO: repo + Ollama + cerebro. Una vez por sesion (~5 min).
+# PARCHE 27-oct: el instalador oficial (curl|sh) corta con exit 1 en Colab.
+# Causa medida: ahora baja "ollama-linux-amd64.tar.zst" (1,5 GB) y su fallback
+# ".tgz" ya no existe (404). Si el runtime no tiene zstd, el script aborta en
+# vez de seguir. Se instala a mano lo mismo que instala el script, sin useradd
+# ni unidad de systemd (Colab no arranca con systemd).
+# Ademas se quito "-U numpy": subia numpy a 2.5.x y rompia numba 0.61.2.
+# El cerebro no usa numpy (build_comp solo importa math/json/re/pathlib).
 # ============================================================================
 import os, pathlib, subprocess, time
 
@@ -45,17 +52,40 @@ RAMA     = "main"
 os.environ.setdefault("CEREBRO", "qwen3.5:9b")   # tag verificado 26-oct-2026 (CAMBIOS #4)
 CEREBRO = os.environ["CEREBRO"]
 
-%pip install -q -U ollama pydantic jsonschema edge-tts numpy
+%pip install -q -U ollama pydantic jsonschema edge-tts
 
-if not pathlib.Path("/usr/local/bin/ollama").exists():
-    subprocess.run("curl -fsSL https://ollama.com/install.sh | sh", shell=True, check=True)
+OLLAMA = "/usr/local/bin/ollama"
+
+def _sh(cmd):
+    return subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+if not pathlib.Path(OLLAMA).exists():
+    print("instalando zstd (lo necesita el tar.zst de ollama)...")
+    r = _sh("apt-get -qq update && apt-get -qq install -y zstd")
+    if r.returncode != 0:
+        print("apt fallo:", (r.stderr or "")[-400:])
+    print("bajando ollama (~1,5 GB)...")
+    r = _sh("curl -fsSL https://ollama.com/download/ollama-linux-amd64.tar.zst "
+            "| zstd -d | tar -xf - -C /usr/local")
+    if r.returncode != 0 or not pathlib.Path(OLLAMA).exists():
+        raise RuntimeError("no se pudo instalar ollama.\\n" + (r.stderr or "")[-900:])
+pathlib.Path(OLLAMA).chmod(0o755)
+print(subprocess.run([OLLAMA, "--version"], capture_output=True, text=True).stdout.strip())
+
 os.environ["OLLAMA_HOST"] = "http://127.0.0.1:11434"
-if "ollama serve" not in subprocess.run("pgrep -a -f ollama", shell=True,
-                                        capture_output=True, text=True).stdout:
-    subprocess.Popen("nohup ollama serve >/tmp/ollama.log 2>&1 &", shell=True)
-    time.sleep(8)
+if not subprocess.run(["pgrep", "-f", "ollama serve"], capture_output=True).stdout:
+    subprocess.Popen("nohup /usr/local/bin/ollama serve >/tmp/ollama.log 2>&1 &", shell=True)
+for s in range(90):                       # esperar respuesta real, no un sleep a ojo
+    if _sh("curl -fsS http://127.0.0.1:11434/api/version").returncode == 0:
+        print("ollama listo a los", s, "s")
+        break
+    time.sleep(1)
+else:
+    print("ojo: el server no respondio en 90 s. Ultimas lineas de /tmp/ollama.log:")
+    print(_sh("tail -20 /tmp/ollama.log").stdout)
+
 print("bajando el cerebro (~5 GB en Q4, sin claves)...")
-subprocess.run(["ollama", "pull", CEREBRO], check=True)
+subprocess.run([OLLAMA, "pull", CEREBRO], check=True)
 
 from google.colab import userdata                      # Kaggle: usar la variable de kaggle secrets
 try:
@@ -71,7 +101,7 @@ if not pathlib.Path("fabrica").exists():
 %cd fabrica
 subprocess.run(["git", "config", "user.name", "Ticomental"], check=True)
 subprocess.run(["git", "config", "user.email", "ticomental@users.noreply.github.com"], check=True)
-print("listo:", subprocess.run(["ollama", "list"], capture_output=True, text=True).stdout)
+print("listo:", subprocess.run([OLLAMA, "list"], capture_output=True, text=True).stdout)
 '''
 
 CELDA_2 = '''# ============================================================================

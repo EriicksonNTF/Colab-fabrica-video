@@ -307,3 +307,22 @@ corrieron dos runs manuales desde checkout limpio.
 diciendo 12-18 min y **queda derogado por esta medición**.
 **Consecuencia práctica:** el techo de 2000 min/mes de Actions free queda lejos — 6 videos por semana
 son ~18 min de runner. Y el dueño puede re-renderizar un slug a las 20:30 y publicar igual.
+
+### 24. El instalador de Ollama deja de usarse: se instala el payload directo
+**Motivo:** la celda 1 del notebook moría en Colab con
+`CalledProcessError: 'curl -fsSL https://ollama.com/install.sh | sh' returned non-zero exit status 1`.
+Se leyó el script (455 líneas) en vez de adivinar. El script ahora intenta primero
+`ollama-linux-amd64.tar.zst` (HEAD 200, **1,52 GB**) y deja el `.tgz` como fallback, **pero ese
+fallback ya no existe: HEAD 404**. Si el runtime no tiene `zstd`, el script llama a `error()`
+—que es `exit 1`— en vez de degradar. Colab trae Python 3.13 y no garantiza `zstd`.
+**Efecto:** la celda ya no llama al instalador. Instala `zstd` por apt y descomprime el mismo payload
+que el script bajaría (`curl … .tar.zst | zstd -d | tar -xf - -C /usr/local`), que deja
+`/usr/local/bin/ollama` + `/usr/local/lib/ollama`. Eso es exactamente lo que el instalador hace por
+dentro, **sin** `useradd` ni unidad de systemd (Colab no arranca con systemd; el script lo saltea solo,
+pero es código que no necesitamos).
+**Además, dos arreglos que salieron del mismo error:**
+- `%pip install -U numpy` **se quitó**. Subía numpy a 2.5.4 y rompía `numba 0.61.2` (`numpy<2.3`), que
+  es el warning que apareció en el mismo output. El cerebro no usa numpy: `build_comp` sólo importa
+  `math`, `json`, `re` y `pathlib`. El que sí usa numpy es `qc.py`, y corre en GitHub Actions.
+- La espera del server pasó de `time.sleep(8)` a un sondeo real de `/api/version` hasta 90 s, y si no
+  responde imprime `tail -20 /tmp/ollama.log`. Un sleep fijo falla en sesiones lentas sin decir por qué.
