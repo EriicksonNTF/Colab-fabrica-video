@@ -444,3 +444,150 @@ y lista los válidos. El error se produjo por escribir a mano un slug de ejemplo
 **Honesto:** esto es un arreglo de prompt, verificado en sintaxis y en los datos observados, **no
 todavía de punta a punta**. Un 9B puede volver a desobedecer; la red de seguridad es la celda 3, que
 deja el slug `BLOQUEADO` con el motivo escrito en vez de renderizar algo mal.
+
+---
+
+## 2026-10-28 · la corrida rechazada: recomposición completa y siete defectos medidos
+
+El dueño rechazó el master de S001 con tres frases: *«la única imagen que quedó gráficamente bien
+fue la primera»*, *«la voz tomó una genérica»*, *«los subtítulos no están saliendo tan bien como
+salían antes»*. Las tres tenían causa concreta; esto es lo que se cambió.
+
+### 31. El mundo crecía de más y la cámara retrocedía entre beats (raíz de «solo la primera»)
+**Motivo:** la cascada `_despeja()` empujaba cada pieza hasta despejar **cualquier** pieza del mundo,
+incluidas las de beats posteriores: 14 piezas apiladas dejaban el mundo en 11.687 px y estaciones no
+monótonas (la del beat 6 caía *arriba* de la del 4). La cámara tenía que retroceder y el monitor del
+beat 5 se metía en el beat 9.
+**Efecto:** `_despeja()`/`_mueve()` se reemplazan por `_apila()` (apila solo piezas del MISMO beat) y
+`_separa_bloques()` (240 unidades fijas entre bloques, en orden). Estaciones monótonas:
+1400→3150→4595→5793→6901→7925→9132→9381→10349. `aceleracion_max` bajó a 0,0034.
+
+### 32. Las piezas del beat anterior seguían vivas en la franja del karaoke
+**Motivo:** en el master del 27-oct se leían «0 1 2 3 4 5 6 7» del beat 6 tres beats después, y los
+títulos de las fichas asomaban bajo el velo. El velo llegaba al 62 % de 366 px y las piezas nunca
+salían.
+**Efecto:** `#velo` es sólido hasta el 92 % de 332 px y `Comp.salida(i)` funde cada pieza a 0 durante
+el viaje de cámara hacia el siguiente beat dibujado (0,5 s, `power1.in`). Nada heredado sobrevive.
+
+### 33. La bandera SEÑAL ELÉCTRICA tapaba su propio rótulo
+**Motivo:** la bandera traía coordenadas fijas del 27-oct; al normalizar el circuito (`anclas_circuito`)
+el punto rojo quedó **encima** de «sistema nervioso» y el hilo cruzaba el texto (s14). Además, el par
+cerebro-músculo casi horizontal (560 a 35°) medía 766×652: al encajarlo por ancho quedaba en **30 %
+del alto** con papel vacío arriba y abajo.
+**Efecto:** el par va a 740 unidades y ~53° (bloque 755×1.060, entra en 78 % de ancho y 62 % de alto);
+los tres cables son **paralelos** con tangente horizontal (el abanico anterior se cruzaba en el medio
+y parecía una cuerda), y «orbicular» pasa debajo del músculo. `bandera.ancla="senal"` ancla la
+etiqueta en el nodo azul de salida del cerebro, y `_ubica_bandera` conserva el lado declarado con
+tolerancia de 0,6 (antes el flip por 0,04 invertía banderas que estaban bien).
+
+### 34. Fichas: tarjetas chicas con huecos enormes y título desbordado
+**Motivo:** cuatro fichas en fila se apilaban con `GAP_V=170` entre tarjetas de 150 de alto: el
+bloque medía 1.170 unidades, la cámara bajaba a 0,73 y las tarjetas quedaban en 293×110 px.
+«menos caféina» se salía de la tarjeta y el badge de 44 se le montaba encima.
+**Efecto:** `GAP_V=100` (bloque de 930 → escala 0,89), título con auto-ajuste (0,56 em/char, tope
+`w-110`), título centrado cuando la ficha no tiene nota, badge r=36 y alto máximo 150 para fichas
+de una sola palabra.
+
+### 35. El chip médico tapaba la última ficha; el anillo dorado no se veía
+**Motivo:** el aviso «Esto no es consejo médico» (franja 1246-1338) se dibujaba sobre la tarjeta
+«pausas» del beat 8, y el anillo dorado del beat 8 latía invisible: `Comp.g()` deja el grupo padre en
+`opacity=0` y `p_anillo` solo animaba los hijos.
+**Efecto:** `_deja_sitio_al_chip()` encaja el bloque heredado entre la franja del karaoke y el chip
+(beat 8: escala 0,892, bloque 355-1.131, chip debajo) y `p_anillo` hace `tl.set(grupo, opacity:1)`.
+También se corrigió el óvalo del músculo: `opacity=0.2` apagaba relleno **y** contorno; ahora es
+`fill-opacity` y el contorno rojo se ve.
+
+### 36. Los subtítulos perdieron las marcas de palabra (regresión real, no percepción)
+**Motivo:** `edge-tts` 7.x cambió el valor por defecto de `boundary` a **`SentenceBoundary`**. Nuestro
+`synth_clip()` nunca lo pasaba, así que no llegaba **ni una** `WordBoundary`: `timestamps.json` caía
+a `sync_mode: proporcional` (reparto por caracteres) y la caja azul se adelantaba o atrasaba hasta
+medio segundo. El audio se oía bien, por eso no se había visto.
+**Efecto:** `Communicate(..., boundary="WordBoundary")`. Verificado: la misma frase devuelve 7 marcas
+con `offset`/`duration`. El build además **falla** si dos líneas de karaoke se solapan o si una palabra
+empieza fuera de su grupo (`grupos()`), y si el foco declarado nace bajo el karaoke o bajo el chip.
+
+### 37. Voz «genérica»: era castellano de España y plana entre beats
+**Motivo:** `es-ES-AlvaroNeural` para un guion latinoamericano, con un solo rate por tipo (tres NOMBRE
+seguidos sonaban idénticos).
+**Efecto:** voz de lanzamiento `es-MX-JorgeNeural`; `PITCH_BY_TIPO` suma un cuarto de tono en HOOK y
+baja dos hercios en UTILIDAD. El A/B de la celda 5 ahora compara **voces latinoamericanas**
+(es-MX, es-AR, es-CO, es-CL, es-US) y no siete castellanas.
+**Pendiente honesto:** el clon de la voz del dueño no está implementado. Clonar una voz ajena sigue
+prohibido; clonar la propia es posible (OpenVoice v2, MIT) pero es una fase aparte y sin probar.
+
+### 38. El QC no distinguía una escena vacía de una llena
+**Motivo:** con `MIN_DENSIDAD=1,5 %` pasaban los beats 3 y 4 del 27-oct, que estaban al 1,5-1,6 %.
+**Efecto:** medido sobre S001 recompuesto a 540×960 (mismo filtro del QC), la densidad del foco va de
+**7,2 % a 19,7 %** y la cobertura de 3,6 % a 7,7 % en las llegadas. Nuevos umbrales:
+`MIN_COVERAGE=2,5 %`, `MIN_DENSIDAD=5 %`, y `MAX_FUGA_CHIP=1,5 %` (dibujo bajo el chip fuera de su
+caja, medido en píxel, solo desde que el chip está visible).
+
+### 39. Voz propia: el camino ya existe y estaba roto
+**Motivo:** `run_pipeline.py --reuse-voz` reescribia `script_render.json` desde `script.json`, que no
+lleva `t_real`: el comp quedaba armado sobre los tiempos nominales mientras el `voz.wav` que suena es
+el real. Nadie lo noto porque la bandera nunca se uso en el cron.
+**Efecto:** con `--reuse-voz` se parte de `script_render.json` (el que tiene `t_real`) y se exige
+`voz.wav`. El workflow suma el input `voz: edge | propia`; con `propia` pasa `--reuse-voz`. Asi se
+puede dejar en el repo una voz generada fuera de edge (clon propio, grabacion) con sus
+`timestamps.json` y el render la respeta.
+
+### 40. El notebook seguia ofreciendo siete voces castellanas
+**Motivo:** el A/B de la celda 5 era todo es-ES; elegir ahi garantizaba el mismo problema del 27-oct.
+**Efecto:** `VOCES_AB` pasa a es-MX-Jorge (lanzamiento), es-AR-Tomas, es-CO-Gonzalo, es-CL-Lorenzo,
+es-PE-Alex, es-US-Alonso y es-ES-Alvaro como control. Los prompts del GUIONISTA y del ANIMADOR ahora
+exigen tildes y enie en todo texto visible: `validate.py` ya rechaza la palabra sin tilde
+(`senal -> señal`, `parpado -> párpado`, ...), asi que el guion no llega al render mal escrito.
+
+### 41. La doctrina de camara quedo desactualizada respecto del QC
+**Efecto:** `docs/reglas-de-camara.md` documenta los umbrales reales (`MIN_COVERAGE=2,5 %`,
+`MIN_DENSIDAD=5 %`, `MAX_FUGA_CHIP=1,5 %`) y el `Manual-del-dueno.md` §11 pasa a voz latina de
+lanzamiento, con el estado honesto del clon propio (fase aparte, OpenVoice v2 MIT, sin marcas por
+palabra, XTTS-v2 descartada por licencia no comercial).
+
+### 42. Los tres cables del circuito se trenzaban y los nodos volaban fuera del trazo
+**Motivo:** el desplazamiento entre cables era (30, -34) fijo, no perpendicular a la diagonal
+cerebro->musculo: los tres se acercaban en el medio y se cruzaban al llegar al musculo (s13 del
+master del 28-oct). Ademas los nodos viajaban de `(x0,y0)` a `(x1,y1)` en linea recta, con el cable
+curvo: el punto azul flotaba al costado.
+**Efecto:** offset perpendicular `(-dy, dx)/|v|` para arranque, controles y llegada; el nodo recorre la
+cubica con 12 keyframes de `attr cx/cy` (sin plugin de motion path). Quedan tres trazos paralelos y el
+punto siempre sobre el cable.
+
+### 43. El karaoke se corria una palabra por beat desde el beat 1
+**Motivo:** `reparte_palabras` consumia una palabra del TTS por cada token del guion. La raya del
+guion ("—") no se pronuncia, pero gastaba una palabra: desde ahi cada beat arrancaba corrido y se
+leia "que no obedece La buena casi" (s32) o "cafeina y pausas de Y no de magnesio" (s37), con
+mayusculas en mitad de la linea. El tope de 4 palabras de lookahead no alcanzaba a corregirlo.
+**Efecto:** los tokens sin letras se saltean; si el TTS no devolvio una palabra, se interpola su
+tiempo entre vecinas (`sintetica: True`) en vez de robarle la palabra al beat siguiente. Verificado:
+los 10 beats reparten 11/11/7/8/19/12/12/16/14/17 palabras y ninguna linea mezcla dos beats.
+
+### 44. La mano del CTA era una manopla
+**Motivo:** el path del 27-oct tenia cuatro bultos sin pulgar y el canto derecho inflado; con las
+arrugas arrancando en y=-150 cruzaban los valles de los dedos.
+**Efecto:** palma con cuatro dedos de punta redondeada, pulgar saliendo del canto izquierdo y las
+cinco arrugas dentro de la palma (y=-40 a +112).
+
+### 45. El master no llegaba a -14 LUFS con picos bajo -1,5
+**Motivo:** la voz tiene ~17 dB de cresta. Una pasada lineal de loudnorm solo podia aplicar +0,2 dB
+antes de tocar el techo de TP: el master del 28-oct salio -15,86 LUFS y el QC lo rechazo.
+**Efecto:** `mezclar_audio` hace loudnorm dinamico dos veces, mide, aplica la ganancia que falta con
+`alimiter` (-3,1 dBFS de muestra) y repite la correccion hasta 3 veces. Medido: **-14,5 LUFS / TP
+-2,10 dB / LRA 3,3** en el master final, dentro del gate.
+
+### 46. El beat 8 no tenía escena: 6,8 s con las fichas del beat 7
+**Motivo:** el beat "si se prolonga..." solo llevaba un `anillo` decorativo. Los anillos son
+anotaciones, así que no abrían bloque ni disparaban la salida del beat anterior: las cuatro fichas
+seguían en pantalla hasta el CTA mientras la voz hablaba de acudir a un profesional, y el aro
+ámbar quedaba cortado en el borde.
+**Efecto:** `p_ojo` acepta `caida`: un párpado recortado por la esclerótica que baja con la palabra
+"cierra" (`t_beat + 1,2 s`) y se detiene sobre la pupila, dejando el iris visible. El beat 8 ahora
+tiene ojo propio en [1600, 8200] con aros ámbar de atención: la cámara lo encuadra a 1,30 y las
+fichas se retiran al llegar. El bloque se separa solo del beat 7 y del CTA.
+### 47. El viaje al CTA dejaba un segundo de papel vacío
+**Motivo:** la salida de cada bloque arrancaba justo cuando el siguiente empezaba a dibujarse; en el
+viaje largo del beat 8 al CTA (43,2 a 49,3) eso dejaba el ojo borrado y la mano todavía por debajo
+del cuadro: 0,9 s de papel casi vacío a 48,0-49,2.
+**Efecto:** la salida espera 0,4 s más, así el bloque que se va cruza durante el paneo con el que
+llega. Medido en previas: a 48,3 el ojo sigue en cuadro mientras la mano se dibuja abajo y a 16,6
+o 25,4 el bloque anterior se ve al 20-25 % en el borde, como fundido, nunca encima del karaoke.

@@ -18,6 +18,12 @@ on:
         default: "delivery"
         type: choice
         options: [draft, looks, delivery]
+      voz:
+        description: "voz: edge = sintetiza; propia = usa voz.wav + timestamps.json ya subidos"
+        required: false
+        default: "edge"
+        type: choice
+        options: [edge, propia]
 
 permissions:
   contents: read
@@ -62,7 +68,12 @@ jobs:
       - run: 'npx -y hyperframes browser install || echo "Chrome: lo baja el propio render"'
 
       - name: Pipeline (voz -> sfx -> comp -> render -> ensamble -> QC -> publicable)
-        run: python agente/run_pipeline.py --slug "$SLUG" --quality "${{ github.event.inputs.quality || 'delivery' }}"
+        shell: bash
+        run: |
+          EXTRA=""
+          if [ "${{ github.event.inputs.voz }}" = "propia" ]; then EXTRA="--reuse-voz"; fi
+          python agente/run_pipeline.py --slug "$SLUG" $EXTRA \
+            --quality "${{ github.event.inputs.quality || 'delivery' }}"
 
       - uses: actions/upload-artifact@v4
         if: always()

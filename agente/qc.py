@@ -16,18 +16,22 @@ import numpy as np
 
 W, H = 540, 960  # ventana de analisis (barato; la medicion de fraccion es invariante a escala)
 BG = np.array([255, 248, 241], np.int16)  # --papel de la paleta del canal
-# Umbrales calibrados sobre el master real de S001 (26-oct-2026): el estilo es LINEA sobre papel
-# (trazo 12 + rellenos chicos), no mancha maciza. cov media medida en el master con bandas correctas:
-# 3,1%. L1 (78% de ancho) se exige al GENERAR el encuadre en build_comp.py; aca el pixel solo prueba
-# que haya contenido real.
-MIN_COVERAGE = 0.015
+# Umbrales calibrados sobre S001 recompuesto (28-oct-2026), medidos en 540x960 con el mismo filtro
+# que usa este archivo: cov 3,6-7,7 % en las llegadas y densidad del foco 7,6-19,7 %. El estilo es
+# LINEA sobre papel (trazo + rellenos chicos), no mancha maciza. L1 (78 % de ancho) se exige al
+# GENERAR el encuadre en build_comp.py; aca el pixel prueba que haya contenido REAL y donde.
+MIN_COVERAGE = 0.025
 MIN_W_OR_H = (0.55, 0.45)
-# Que parte de la caja prometida por la estacion esta efectivamente pintada. Medido en el master
-# real de S001: los beats bien encuadrados dan 3,7 % (el circuito, pura linea) y 21 % (el ojo).
+# Que parte de la caja prometida por la estacion esta efectivamente pintada. Medido en S001
+# recompuesto: el minimo de los diez beats es 7,6 % (el circuito, pura linea) y el maximo 19,7 %
+# (el ojo). Con 1,5 % pasaban los beats vacios del 27-oct (1,5-1,6 %): el umbral ahora corta.
 # Una camara mirando al lado equivocado no pasa de 0,8 %, porque solo la rozan trazos vecinos.
 # Se usa DENSIDAD y no "fraccion de toda la pintura del cuadro" porque en un mundo continuo siempre
 # hay zonas vecinas dibujadas: eso bajaria a 40 % un plano perfecto (medido en calma y CTA).
-MIN_DENSIDAD = 0.015
+MIN_DENSIDAD = 0.05
+# Drawing behind the medical chip is the other silent failure: the band is veiled, so the pixel
+# barely shows it, but the viewer sees cards crawling under the amber strip.
+MAX_FUGA_CHIP = 0.015
 MAX_LUMA_JUMP = 26.0
 MIN_FRAME_DIFF = 0.05
 MAX_CASI_VACIOS = 45    # 3 s repartidos de papel suelto son viajes largos de camara; mas, escena vacia
@@ -68,7 +72,7 @@ def loudness(master):
 TM = 15.0   # muestreo del QC (fps): 1650 cuadros de un master de 55 s no se guardan en RAM
 
 
-def medir(master, bandas, focos=None):
+def medir(master, bandas, focos=None, chip=None, chip_t=None):
     """Streaming de fotogramas por FFmpeg: del cuadro solo queda la metrica, no el pixel.
 
     El prototipo aprendio que medir luminancia no detecta una escena vacia: por eso cada cuadro
@@ -90,10 +94,18 @@ def medir(master, bandas, focos=None):
         fr = np.frombuffer(buf, np.uint8).reshape(H, W, 3).astype(np.int16)
         luma = fr.mean(axis=2)
         mask = np.abs(fr - BG).max(axis=2) > 40
+        m_t = len(metricas) / TM
+        fuga = 0.0
+        if chip and chip_t is not None and m_t >= chip_t + 0.5:
+            cx0, cy0, cx1, cy1 = [v * (W / 1080.0) for v in chip]
+            reg = np.zeros((H, W), bool)
+            reg[int(cy0):int(cy1), :] = True
+            reg[int(cy0):int(cy1), int(cx0):int(cx1)] = False
+            fuga = float((mask & reg).sum()) / max(1.0, float(reg.sum()))
         for a, b in tapas:
             mask[max(0, a):min(H, b), :] = False
         ys, xs = np.nonzero(mask)
-        m = {"t": len(metricas) / TM, "luma": float(luma.mean()),
+        m = {"t": m_t, "luma": float(luma.mean()), "fuga": round(fuga, 4),
              "cov": float(mask.mean()),
              "fw": float((xs.max() - xs.min() + 1) / W) if len(xs) else 0.0,
              "fh": float((ys.max() - ys.min() + 1) / H) if len(ys) else 0.0}
@@ -136,11 +148,12 @@ def main():
         mw, mh = cm["ancho"], cm["alto"]
         focos = [None if not f else [f[0] / mw, f[1] / mh, f[2] / mw, f[3] / mh]
                  for f in cm.get("focos", [])]
+        chip, chip_t = cm.get("chip"), cm.get("chip_t")
     else:   # sin meta no se puede decir donde esta el HUD: se mide todo y se avisa
-        bandas, focos = [(0.0, 0.05)], []
+        bandas, focos, chip, chip_t = [(0.0, 0.05)], [], None, None
     meta = probe(master)
     ln = loudness(master)
-    metrics, delta = medir(master, bandas, focos)
+    metrics, delta = medir(master, bandas, focos, chip, chip_t)
     fps = TM
 
     fails, notes = [], []
@@ -160,6 +173,10 @@ def main():
     if float(ln.get("input_tp", -99) or -99) > -1.5:
         fails.append(f"pico {ln.get('input_tp')} dBTP > -1.5")
 
+    fugas = [(m["t"], m["fuga"]) for m in metrics if m.get("fuga", 0) > MAX_FUGA_CHIP]
+    if fugas:
+        fails.append(f"{len(fugas)} fotogramas con dibujo debajo del chip fuera de su caja: "
+                     f"{fugas[:5]}")
     blacks = [m["t"] for m in metrics if m["cov"] < 0.012]
     if len(blacks) > MAX_CASI_VACIOS:
         fails.append(f"{len(blacks)} fotogramas casi vacios (cov<1.2%), primeros {blacks[:5]}")

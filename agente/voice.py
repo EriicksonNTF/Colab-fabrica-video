@@ -18,6 +18,10 @@ SR = 48000
 # RECETA aprobada 26-oct-2026: energia por beat, no clonando nada.
 RATE_BY_TIPO = {"HOOK": "+18%", "NOMBRE": "-2%", "MECANISMO": "-2%", "DEMO": "+6%",
                 "UTILIDAD": "+6%", "CTA": "+4%"}
+# Un solo rate por tipo sonaba plano entre beats del mismo tipo (3 NOMBRE seguidos, 2 UTILIDAD):
+# un cuarto de tono arriba en el gancho y abajo en la utilidad alcanza para que se lea "hablado".
+PITCH_BY_TIPO = {"HOOK": "+8Hz", "NOMBRE": "+2Hz", "MECANISMO": "+0Hz", "DEMO": "+3Hz",
+                 "UTILIDAD": "-2Hz", "CTA": "+5Hz"}
 RATE_DEFAULT = "+8%"
 GAP_S = 0.22
 GAP_BEFORE_CTA_S = 0.30
@@ -59,7 +63,10 @@ def wav_samples(path):
 async def synth_clip(text, voice, rate, pitch, mp3, words_out):
     import edge_tts
 
-    com = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
+    # edge-tts 7.x cambio el DEFAULT a SentenceBoundary: sin este argumento no llega ni una palabra
+    # y el karaoke cae a "proporcional" (reparto por caracteres). Es la regresion de subtitulos del
+    # 28-oct: el audio se oye bien, pero la caja azul se adelanta o se atrasa medio segundo.
+    com = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, boundary="WordBoundary")
     audio, words = bytearray(), []
     async for chunk in com.stream():
         tipo = str(chunk.get("type", ""))
@@ -115,7 +122,7 @@ def build(script_path, out_dir, voice_id=None, rate_override=None, fallback=Fals
     clips = []
     for i, b in enumerate(beats):
         rate = rate_override or RATE_BY_TIPO.get(b["tipo"], script["voz"].get("rate_global", RATE_DEFAULT))
-        pitch = "+2Hz" if b["tipo"] == "HOOK" else "+0Hz"
+        pitch = PITCH_BY_TIPO.get(b["tipo"], "+0Hz")
         mp3, wj = out / f"beat{i:02d}.mp3", out / f"beat{i:02d}.words.json"
         try:
             _run_async(synth_clip(b["linea"], vid, rate, pitch, mp3, wj))

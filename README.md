@@ -35,9 +35,11 @@ Chrome. La única escritura compartida es `git push` de archivos de texto.
 
 1. **`validate.py`** — muralla 2: contrato de `script.json`, piezas, frases vetadas, muro médico,
    claims sin URL. Un guion inválido no se renderiza.
-2. **`voice.py`** — edge-tts (`es-ES-AlvaroNeural`) con la RECETA de rates por beat
-   (HOOK +18 %, MECANISMO −2 %, DEMO/UTILIDAD +6 %, CTA +4 %) y gaps de 0,22 s / 0,30 s antes del CTA.
-   Escribe `t_real` por beat y `timestamps.json`. Si edge-tts cae, Kokoro offline.
+2. **`voice.py`** — edge-tts (`es-MX-JorgeNeural`, latino) con la RECETA de rates por beat
+   (HOOK +18 %, MECANISMO −2 %, DEMO/UTILIDAD +6 %, CTA +4 %), un pitch por tipo de beat y
+   `boundary="WordBoundary"` **explícito** (edge-tts 7.x defaultea a frase y el karaoke pierde las
+   marcas). Escribe `t_real` por beat y `timestamps.json`. Si edge-tts cae, Kokoro offline. Con
+   `--reuse-voz` respeta un `voz.wav` + `timestamps.json` ya puestos (voz propia).
 3. **`synth_sfx.py`** — whoosh/pop/tick/ding/chime **sintetizados con numpy**: sin CC0, sin descargas,
    sin logins.
 4. **`mezclar_audio`** — SFX en las llegadas reales (`adelay`) → `amix normalize=0` → `loudnorm` en
@@ -50,8 +52,9 @@ Chrome. La única escritura compartida es `git push` de archivos de texto.
    `--strict --resolution portrait`. Se verifica además con `npx -y hyperframes lint`.
 7. **`qc.py`** — QC-AV: técnica (duración, fps, resolución, pix_fmt, LUFS, dBTP), continuidad de
    cámara (manifiesto `cam_manifest.jsonl`, `|Δ²scale| ≤ 0,008`), y **contenido real en el píxel**:
-   cobertura y bbox por beat contra el papel crema, **dentro de la caja que ese beat prometió**
-   (`comp_meta.json`). Medir luminancia no detecta una escena vacía; esta comparación sí.
+   cobertura ≥ **2,5 %** y bbox ≥ 55 % ancho / 45 % alto por beat contra el papel crema, **dentro de
+   la caja que ese beat prometió** (`comp_meta.json`), con **densidad de foco ≥ 5 %** y **fuga bajo el
+   chip médico ≤ 1,5 %**. Medir luminancia no detecta una escena vacía; esta comparación sí.
 
 Artefactos por escena: `master_final.mp4`, `hoja_contacto.jpg`, `pipeline_report.json`,
 `comp.html`, `comp_meta.json`, `cam_manifest.jsonl`, `data/qc/{slug}-qcav.{json,md}`.

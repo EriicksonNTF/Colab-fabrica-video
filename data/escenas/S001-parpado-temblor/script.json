@@ -3,7 +3,7 @@
   "factset": "data/factsets/S001-parpado-temblor.json",
   "duracion_objetivo_s": 52.0,
   "voz": {
-    "voice_id": "es-ES-AlvaroNeural",
+    "voice_id": "es-MX-JorgeNeural",
     "rate_global": "+8%",
     "receta_por_beat": true
   },
@@ -151,12 +151,13 @@
               4330
             ],
             "hacia": [
-              -250,
-              -150
+              290,
+              10
             ],
-            "texto": "senal electrica",
+            "texto": "señal eléctrica",
             "aparece": 3,
-            "retraso": 1.3
+            "retraso": 1.3,
+            "ancla": "senal"
           },
           {
             "id": "factores",
@@ -165,7 +166,7 @@
               1600,
               5560
             ],
-            "texto": "poco sueno  ·  estres  ·  cafeina",
+            "texto": "poco sueño · estrés · cafeína",
             "size": 58,
             "peso": 700,
             "aparece": 4,
@@ -179,7 +180,7 @@
               5980
             ],
             "nivel": 12,
-            "etiqueta": "energia del sistema",
+            "etiqueta": "energía del sistema",
             "aparece": 4
           },
           {
@@ -251,7 +252,7 @@
             ],
             "w": 800,
             "dias": 7,
-            "etiqueta": "se va solo en dias",
+            "etiqueta": "se va solo en días",
             "aparece": 6,
             "retraso": 0.6
           },
@@ -276,7 +277,7 @@
               1600,
               7380
             ],
-            "titulo": "menos cafeina",
+            "titulo": "menos caféina",
             "nota": "",
             "badge": "check",
             "w": 400,
@@ -315,14 +316,28 @@
             "retraso": 0.85
           },
           {
+            "id": "ojo4",
+            "tipo": "ojo",
+            "p": [
+              1600,
+              8200
+            ],
+            "escala": 0.9,
+            "color": "#F4B942",
+            "pulso": 0,
+            "caida": true,
+            "aparece": 8,
+            "motivo": "beat 8: el parpado baja de verdad mientras se dice que se cierra; ambar de aviso, no alarma."
+          },
+          {
             "id": "alerta",
             "tipo": "anillo",
             "p": [
-              2050,
-              7120
+              1600,
+              8200
             ],
-            "r": 160,
-            "n": 3,
+            "r": 200,
+            "n": 2,
             "color": "#F4B942",
             "aparece": 8
           }
@@ -464,7 +479,7 @@
       ],
       "linea_de_consulta": true,
       "chip": "Esto no es consejo médico",
-      "visual": "Anillos amarillos de atencion; la camara se aleja para no tapar el ojo."
+      "visual": "Ojo con el parpado a medio cerrar, el iris tapandose; tres ondas ambar de atencion alrededor, sin tapar el ojo."
     },
     {
       "t": 52.5,

@@ -77,7 +77,7 @@ Dentro de tus propias reglas (las 4 apps oficiales, sin bots):
 
 **Calendario real:** el lote crea 7, el cron renderiza 6 (lun-sáb); el 7º es el repuesto del colchón (o lo renderizás a mano si querés 7 al aire).
 
-**El video diario promedio:** 60 s, ≤165 palabras, beats HOOK ≤2.5 s → NOMBRE → MECANISMO → DEMO → UTILIDAD → CTA; voz es-ES-Alvaro +8% alternos; chip del nicho; **~3 min de máquina por video medidos en GitHub Actions** (3m11s en `delivery`, 3m54s en `draft`; los "~12-18 min" del plan eran una estimación anterior a la primera corrida), $0.
+**El video diario promedio:** 60 s, ≤165 palabras, beats HOOK ≤2.5 s → NOMBRE → MECANISMO → DEMO → UTILIDAD → CTA; voz es-MX-Jorge + receta por beat (alternos latinos); chip del nicho; **~3 min de máquina por video medidos en GitHub Actions** (3m11s en `delivery`, 3m54s en `draft`; los "~12-18 min" del plan eran una estimación anterior a la primera corrida), $0.
 
 **¿2 por día?** Posible (2 triggers), pero no recomendado al inicio: las cuentas nuevas lo penalizan. 1 diario constante es lo que crece.
 
@@ -114,16 +114,33 @@ Hoy o cuando quieras:
 
 ---
 
-## 11. El plan de voz (híbrido adoptado el 26-oct-2026)
+## 11. El plan de voz (actualizado el 28-oct-2026)
 
-Elección del dueño: lanzar con la mejor voz Microsoft + la receta del §5.4, y dejar la excepción Chirp 3 HD EN EVALUACIÓN con muestras reales.
+El 27-oct se lanzó con es-ES-AlvaroNeural y el dueño la rechazó con razón: el guion es LatAm y una
+voz de España suena a doblaje. La voz de lanzamiento pasa a **es-MX-JorgeNeural** con la RECETA
+(rate por beat) y un **pitch por tipo de beat** (`voice.py: PITCH_BY_TIPO`), para que no suene plana
+entre beats del mismo tipo.
 
-- **Voz de lanzamiento:** es-ES-AlvaroNeural +8% con la RECETA (rate por beat), alterno semanal Jorge/Tomas. La voz definitiva se elige con muestras + retención real (~2-3 semanas).
-- **Comparar familias HOY sin claves ni cuentas:** en el demo (ttsforfree.com/voice-library/spanish o edge-tts.com) pegá el guion real del slug S001 (está en §4.3 del doc maestro) y escuchá: Microsoft (Alvaro, Alonso, Jorge, Gonzalo, Tomas, Teo, Saul) Y Google (Chirp3-HD-Fenrir, Chirp3-HD-Enceladus). Misma frase, misma velocidad (+12% como en la receta).
-- **A/B automatizado (Día-1):** el notebook lleva una celda extra que sintetiza el S001 con las voces Microsoft a sus rates de receta y te baja un zip de MP3.
-- **A/B de Chirp automatizado:** SOLO existe cuando esculpás la excepción (cuenta GCP + clave en Secrets de Colab/Actions + billing a $0 + alerta de presupuesto). El free tier es 1M chars/mes permanente: el canal usa ~3%.
-- **Criterio de decisión (semana 2-3):** retención 3 s y retención 30 s REALES del canal. Si edge+receta pierde frente a Chirp con el mismo guion → migrás (Chirp principal, edge pasa a backup; Kokoro/Piper quedan de emergencia).
-- **Cadena oficial de voz del canal:** principal (Alvaro + receta) → rotación de alternos edge (Jorge/Tomas) → Kokoro em_alex (emergencia offline) → Piper (última raya).
+- **Voz de lanzamiento:** es-MX-JorgeNeural, receta del §5.4. Alternos semanales (latino, no
+  castellano): es-AR-TomasNeural, es-CO-GonzaloNeural, es-CL-LorenzoNeural, es-PE-AlexNeural.
+  es-ES-AlvaroNeural queda solo como control en el A/B.
+- **A/B automatizado (Día-1):** CELDA 5 sintetiza S001 con las siete voces a los rates de receta y
+  baja un zip de MP3. Se elige con el oído, no con la ficha técnica.
+- **Tu propia voz (voz clonada):** el pipeline ya la soporta sin tocar código: dejás `voz.wav` y
+  `timestamps.json` del slug en el repo, y corrés Actions > tico-render con `voz: propia` (pasa
+  `--reuse-voz`). Lo que falta es generar esos dos archivos: se hace en Colab con un clonador de
+  licencia limpia (OpenVoice v2, MIT) y **30-60 s de tu voz**, nunca la de otra persona. Ojo con dos
+  límites reales: (a) los clonadores abiertos no devuelven marcas por palabra, así que el karaoke
+  cae a reparto proporcional y los subtítulos quedan algo menos clavados que con edge-tts;
+  (b) Coqui XTTS-v2 (la de mejor calidad en español) es **no comercial**, así que no sirve para un
+  canal monetizado. Por eso la clonación es una fase aparte, con muestras tuyas y comparación A/B,
+  no un cambio de hoy.
+- **Sin claves ni cuentas para comparar familias Microsoft:** el notebook cubre las voces edge.
+  Chirp 3 HD sigue EN EVALUACIÓN y solo existe si algún día aceptás la excepción GCP.
+- **Criterio de decisión (semana 2-3):** retención 3 s y 30 s REALES. Si Jorge+receta pierde contra
+  otra, se migra; Kokoro/Piper quedan de emergencia.
+- **Cadena oficial de voz del canal:** principal (Jorge MX + receta) → rotación latina edge →
+  Kokoro em_alex (emergencia offline) → Piper (última raya).
 
 ---
 

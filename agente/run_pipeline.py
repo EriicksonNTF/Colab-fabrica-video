@@ -103,18 +103,52 @@ def mezclar_audio(scene, reporte):
     fc = ";".join(filtros) + f";{''.join(mezcla)}amix=inputs={len(mezcla)}:duration=first:" \
                              f"dropout_transition=0:normalize=0[mix]"
     sh(cmd + ["-filter_complex", fc, "-map", "[mix]", "-ar", SR, "-c:a", "pcm_s16le", pre])
-    m = json_de(sh(["ffmpeg", "-i", pre, "-af",
-                    "loudnorm=I=-14:TP=-2.0:LRA=11:print_format=json", "-f", "null", "-"],
-                   check=False).stderr)
-    if m:
-        ln = (f"loudnorm=I=-14:TP=-2.0:LRA=11:linear=true:measured_I={m['input_i']}:"
-              f"measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}:"
-              f"measured_thresh={m['input_thresh']}:offset={m['target_offset']}")
-    else:
-        ln = "loudnorm=I=-14:TP=-2.0:LRA=11"
-    audio = scene / "audio_final.wav"
-    sh(["ffmpeg", "-y", "-v", "error", "-i", pre, "-af", ln, "-ar", SR, "-c:a", "pcm_s16le", audio])
-    reporte["audio"] = {"loudnorm_1paso": m.get("input_i")}
+    # La voz tiene ~17 dB de cresta (pico -2 dB contra -20 LUFS). Para llegar a -14 LUFS con picos
+    # bajo -1,5 hay que recortar 5 dB de cresta, y una pasada lineal de loudnorm solo deja +0,2 dB
+    # antes de tocar el techo de TP: el 28-oct el master salio -15,86 LUFS y el QC lo rechazo. La
+    # cadena es: loudnorm dinamico dos veces (ya baja 4 dB de cresta) -> ganancia medida -> limitador
+    # -> una correccion medida mas, porque el limitador se come ~40 % de cada dB que se sube.
+    # Medido en S001: -14,5 LUFS con TP -1,96 dB ya codificado en AAC.
+    LIMITADOR = "alimiter=level=false:limit=0.70"   # -3,1 dBFS de muestra: el TP real sobresale ~0,8
+    LN = "loudnorm=I=-14:TP=-2.0:LRA=11"
+    paso1 = scene / "loudnorm_1.wav"
+
+    def medir(w):
+        return json_de(sh(["ffmpeg", "-i", w, "-af", LN + ":print_format=json", "-f", "null", "-"],
+                          check=False).stderr)
+
+    def aplicar(src, dst, db):
+        sh(["ffmpeg", "-y", "-v", "error", "-i", src, "-af",
+            f"volume={db:.2f}dB,{LIMITADOR}", "-ar", SR, "-c:a", "pcm_s16le", dst])
+
+    sh(["ffmpeg", "-y", "-v", "error", "-i", pre, "-af", f"{LN},{LN}", "-ar", SR,
+        "-c:a", "pcm_s16le", paso1])
+    m1 = medir(paso1)
+    try:
+        ganancia = round(-14.0 - float(m1["input_i"]), 2)
+    except (KeyError, TypeError, ValueError):
+        ganancia = 0.0
+    audio, tmp = scene / "audio_final.wav", scene / "loudnorm_2.wav"
+    aplicar(paso1, audio, ganancia)
+    # El limitador se come ~60 % de cada dB que se sube despues: una sola correccion dejaba -14,87
+    # (dentro del gate pero a 0,13 dB del borde). Se itera hasta -14,15 con tope de 3 vueltas.
+    correcciones = 0
+    for _ in range(3):
+        m2 = medir(audio)
+        try:
+            delta = round(-14.15 - float(m2["input_i"]), 2)
+        except (KeyError, TypeError, ValueError):
+            break
+        if delta <= 0.10:
+            break
+        aplicar(audio, tmp, min(delta, 1.5))
+        tmp.replace(audio)
+        correcciones += 1
+    paso1.unlink(missing_ok=True)
+    tmp.unlink(missing_ok=True)
+    final = medir(audio)
+    reporte["audio"] = {"loudness_paso1": m1.get("input_i"), "ganancia_db": ganancia,
+                        "correcciones": correcciones, "tp_final_wav": final.get("input_tp")}
     if (scene / "master_info.json").exists():
         mi = json_de((scene / "master_info.json").read_text(encoding="utf-8"))
         reporte["audio"]["pico_voz"] = mi.get("picovoz")
@@ -205,9 +239,16 @@ def main():
 
     validar(scene, a.slug, reporte)
     if a.reuse_voz and (scene / "timestamps.json").exists():
-        sc = json.loads((scene / "script.json").read_text(encoding="utf-8"))
+        # script_render.json es el que lleva `t_real` de la voz que ya suena en voz.wav: si se
+        # reescribiera desde script.json se perderian las llegadas y el comp quedaria desfasado.
+        fuente = scene / "script_render.json"
+        if not fuente.exists():
+            fuente = scene / "script.json"
+        sc = json.loads(fuente.read_text(encoding="utf-8"))
         (scene / "script_render.json").write_text(json.dumps(sc, ensure_ascii=False, indent=2),
                                                   encoding="utf-8")
+        if not (scene / "voz.wav").exists():
+            raise SystemExit("--reuse-voz pidio reutilizar la voz pero no existe voz.wav")
         render_stamps = json.loads((scene / "timestamps.json").read_text(encoding="utf-8"))
         reporte["voz"] = {"reutilizada": True, "sync_mode": render_stamps.get("sync_mode")}
     else:

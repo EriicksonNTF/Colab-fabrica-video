@@ -197,7 +197,7 @@ Los cuerpos NO se dibujan realistas. Se dibujan **estilizados de laboratorio de 
 
 ### 2.5 Voz y estilo de habla
 
-- **Voz TTS v1:** `es-ES-AlvaroNeural` (masculina; lista con `edge-tts --list-voices` — las listas cambian por versión). Alternos según audiencia: `es-MX-JorgeNeural` (LatAm), `es-AR-TomasNeural` (Rioplatense).
+- **Voz TTS v1 (actualizada 28-oct-2026):** `es-MX-JorgeNeural` (latina) tras rechazar el castellano del piloto; alternos `es-AR-TomasNeural`, `es-CO-GonzaloNeural`, `es-CL-LorenzoNeural`, `es-PE-AlexNeural`. `es-ES-AlvaroNeural` queda solo como control A/B. Detalle: Manual del dueño §11.
 - **Velocidad** `+8%`; **pitch** default; sin clonación de voz (regla del stack, §7.3).
 - Palabras que SÍ y cómo: términos médicos se "domestican" siempre con paréntesis hablado: "mioquimia — espasmo, digamos — del músculo del párpado".
 - Cero anglicismos innecesarios ("neurotransmisor" sí; "neuronas fires" NO).
@@ -1469,7 +1469,7 @@ ffmpeg -y -i draft.mp4 -i voz.mp3 -i sfx.wav -i musica.wav \
 - **Chatterbox (Resemble AI)** — MIT · el único open-weights estilo-ElevenLabs elegible; UPGRADE pendiente de verificación en español con voz de referencia PROPIA del dueño + WhisperX para timestamps (condiciones en §7).
 - **Google Cloud TTS "Chirp 3: HD" (26-oct-2026):** es-US soportado (Fenrir/Enceladus, masculinas); free tier permanente **1M chars/mes** ($30/1M después de pasarlo); requiere proyecto GCP + clave + cuenta de billing (uso real del canal ≈ 3% del gratis). Sin WordBoundary → karaoke por WhisperX. Estado: **EXCEPCIÓN EN EVALUACIÓN por el dueño (híbrido)**; muestras escuchables SIN clave pegando el guion real del §4.3 en el demo.
 - **Riesgo honesto del edge (26-oct-2026):** edge-tts usa el servicio no-oficial de lectura en voz alta de Edge → puede romperse o bloquearse sin aviso; por eso el stack lleva backups en 3 niveles (rotación de voces edge → Kokoro → Piper) y por qué evaluar una capa oficial (GCP) es seria, no capricho.
-- **Plan de voz (híbrido, 26-oct-2026):** lanzamiento con es-ES-AlvaroNeural +8% + RECETA §5.4; la voz principal definitiva se elige con muestras + retención real (~2-3 semanas; detalle operativo en Manual del dueño §11).
+- **Plan de voz (híbrido; revisado 28-oct-2026):** lanzamiento con es-MX-JorgeNeural + RECETA §5.4 + pitch por beat; la voz definitiva se elige con muestras + retención real (~2-3 semanas). El clon de la voz propia queda como fase aparte (ver Manual del dueño §11).
 - Canales citados como referencia del estilo: urumy.academy (Opus 5.5 declarado), @nosolomente en TikTok ("historias contadas con dibujos"); perfiles IG exactos no verificables sin login — la TÉCNICA sí quedó verificada por el ecosistema de arriba, que es lo que importa para producir.
 
 ---

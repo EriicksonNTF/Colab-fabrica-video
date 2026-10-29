@@ -71,6 +71,28 @@ def check_factset(fs):
     return errs
 
 
+# Palabras que el generador escribio sin tilde ni enie y que en espanol la llevan (medido en el
+# prototipo: "senal electrica", "energia del sistema", "cafeina"). Lista corta a proposito: solo
+# formas que SIEMPRE llevan tilde, para que no marque "mas"/"anos" cuando son otra palabra.
+TILDE = {"senal": "señal", "senales": "señales", "energia": "energía", "cafeina": "cafeína",
+         "musculo": "músculo", "musculos": "músculos", "medico": "médico", "medica": "médica",
+         "dia": "día", "dias": "días", "parpado": "párpado", "parpados": "párpados",
+         "estres": "estrés", "tambien": "también", "despues": "después", "asi": "así",
+         "organo": "órgano", "corazon": "corazón", "presion": "presión", "azucar": "azúcar",
+         "higado": "hígado", "rinon": "riñón", "glandula": "glándula", "lagrima": "lágrima",
+         "cornea": "córnea", "vision": "visión", "respiracion": "respiración",
+         "digestion": "digestión", "circulacion": "circulación", "reaccion": "reacción",
+         "funcion": "función", "conexion": "conexión", "informacion": "información",
+         "nutricion": "nutrición", "hidratacion": "hidratación", "sueno": "sueño",
+         "nino": "niño", "nina": "niña", "anos": "años", "manana": "mañana"}
+
+
+def sin_tilde(texto):
+    """Tokens que deberian llevar tilde o enie y no la llevan."""
+    limpio = re.sub(r"[^0-9A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+", " ", str(texto)).lower()
+    return [t for t in limpio.split() if t in TILDE]
+
+
 def check_piezas(sc):
     """El shot-list que el cerebro dibuja en script.json; build_comp.py lo materializa en SVG."""
     from build_comp import REGISTRO
@@ -93,6 +115,12 @@ def check_piezas(sc):
                 errs.append(f"pieza {pid}: aparece={ap} debe ser un indice de beat valido (0-{nb - 1})")
             if pz["tipo"] == "bandera" and not str(pz.get("texto", "")).strip():
                 errs.append(f"pieza {pid}: bandera sin texto")
+            visible = " ".join(str(pz.get(k, "")) for k in
+                               ("texto", "titulo", "nota", "etiqueta"))
+            malas = sin_tilde(visible)
+            if malas:
+                errs.append(f"pieza {pid}: sin tilde {malas} -> "
+                            f"{[TILDE[t] for t in malas]}")
     if not ids:
         errs.append("el mundo no tiene piezas: no hay nada que animar")
     return errs
@@ -133,6 +161,9 @@ def check_script(sc, fs=None):
         for kw in b.get("keywords", []):
             if norm(kw) not in norm(b.get("linea", "")):
                 errs.append(f"keyword '{kw}' no aparece en la linea del beat {b.get('tipo')}")
+        malas = sin_tilde(b.get("linea", ""))
+        if malas:
+            errs.append(f"beat {b.get('tipo')}: sin tilde {malas} -> {[TILDE[t] for t in malas]}")
         if any(f in norm(b.get("linea", "")) for f in FRASES_VETADAS):
             errs.append(f"beat {b.get('tipo')} usa una frase vetada (§5.9)")
     errs += check_piezas(sc)

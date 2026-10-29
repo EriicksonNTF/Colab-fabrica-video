@@ -357,6 +357,8 @@ TRADUCCION OBLIGATORIA DE TU ROL EN ESTE PIPELINE (no es opcional, es el contrat
   VERTICALES, de arriba hacia abajo. Una cadena horizontal de 1300 unidades achica el plano y
   deja dos tercios del cuadro en papel vacio (medido en S001: cov 1.2%).
 - Separá zonas ~1600-2000 unidades: viajes mas largos cruzan papel vacio y el QC lo anota.
+- TODO el texto visible (bandera.texto, texto.texto, ficha.titulo/nota, etiquetas) lleva tildes y
+  enie: "señal", "músculo", "párpado", "energía". Sin tilde el validador rechaza el slug.
 """ .replace("TIPOS", ", ".join(sorted(REGISTRO)))
 
 def slug_de(idea, fs):
@@ -384,6 +386,9 @@ def guionista(fs, idea, errores=""):
                "el ANIMADOR despues). Dos ganchos candidatos: `versiones_alternas.hook_2`. "
                "Zonas: usá los ids de zona que despues va a crear el animador: ojo/silueta/circuito/"
                "calma/teaser o los que pidas, pero coherentes con tu campo `visual`.\\n\\n"
+               "ORTOTIPOGRAFIA OBLIGATORIA: todo el texto que se lee en pantalla lleva tildes y enie "
+               "correctas (senal -> señal, energia -> energía, musculo -> músculo, parpado -> párpado, "
+               "manana -> mañana). El validador rechaza la palabra sin tilde: no es estilo, es un gate.\\n\\n"
                "AUDITORIA DE VARIEDAD OBLIGATORIA (§6.9):\\n" + R_VARIEDAD)
     return contratar(sys_txt, json.dumps({"idea": idea, "factset": fs}, ensure_ascii=False) + errores,
                      molde(Guion), 0.3)
@@ -596,8 +601,10 @@ import voice as V
 importlib.reload(V)   # sin esto, un kernel que ya importo voice.py sigue usando la version vieja
 
 SLUG_AB = "S001-parpado-temblor"
-VOCES_AB = ["es-ES-AlvaroNeural", "es-ES-JorgeNeural", "es-ES-TomasNeural",
-            "es-ES-AlonsoNeural", "es-ES-GonzaloNeural", "es-ES-TeoNeural", "es-ES-SaulNeural"]
+# Acentos latinos, no castellano: el guion es LatAm y una voz de Espana suena doblaje. La ultima es
+# el control castellano que se uso antes, para comparar en el mismo archivo.
+VOCES_AB = ["es-MX-JorgeNeural", "es-AR-TomasNeural", "es-CO-GonzaloNeural",
+            "es-CL-LorenzoNeural", "es-PE-AlexNeural", "es-US-AlonsoNeural", "es-ES-AlvaroNeural"]
 sc = json.loads(pathlib.Path(f"data/escenas/{SLUG_AB}/script.json").read_text(encoding="utf-8"))
 carp = pathlib.Path("ab_voz") / SLUG_AB
 carp.mkdir(parents=True, exist_ok=True)

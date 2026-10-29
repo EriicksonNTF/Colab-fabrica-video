@@ -68,12 +68,13 @@ beat se infla desde 0,94 con `power4.out`, no aparece con `set()`.
   `MAX_S = 1,35` (por encima, una pieza chica llena el cuadro y deja de leerse como objeto: se ve
   como una mancha sin contexto). El piso es `MIN_S = 0,30`.
   En el píxel, el QC no puede exigir el mismo número: el estilo es **línea sobre papel**, no mancha
-  maciza, y la cobertura medida de un master real (con el karaoke ya excluido) es ~3,1 %. Por eso allá
-  el criterio es "hay contenido real y se extiende" (cobertura ≥ 1,5 % **y** bbox ≥ 55 % ancho o
-  ≥ 45 % alto), más **`densidadFoco ≥ 1,5 %`**: píxel distinto del papel por unidad de área dentro de
-  la caja de pantalla que ese beat prometió. Se reporta además `pinturaEnFoco` (qué fracción de todo
-  el dibujo cae dentro de esa caja) pero **no corta**: en un mundo continuo siempre hay zonas vecinas
-  fuera, y usarla como umbral aprobaba beats mal encuadrados y cortaba buenos (CAMBIOS #17).
+  maciza. Medido sobre el master del 28-oct en la ventana real del QC, los beats bien encuadrados dan
+  cobertura 3,6-7,7 % y densidad de foco 7,2-19,7 %. Por eso allá el criterio es "hay contenido real
+  y se extiende" (cobertura ≥ **2,5 %** **y** bbox ≥ 55 % ancho o ≥ 45 % alto), más
+  **`densidadFoco ≥ 5 %`**: píxel distinto del papel por unidad de área dentro de la caja de pantalla
+  que ese beat prometió. Se reporta además `pinturaEnFoco` (qué fracción de todo el dibujo cae dentro
+  de esa caja) pero **no corta**: en un mundo continuo siempre hay zonas vecinas fuera, y usarla como
+  umbral aprobaba beats mal encuadrados y cortaba buenos (CAMBIOS #17).
 - **L2** Ninguna etiqueta entra más de **0,6 s** después de su llegada.
 - **L3** Luminancia media del fotograma **≥ 34/255** en las paradas de diagrama.
 - **L4** Texto efectivo ≥ **17 px** a 1080×1920 (los tamaños del doc maestro ya cumplen; no bajar).
@@ -102,7 +103,8 @@ la geometría del comp:
 | sin cortes | ningún `\|Δluma\|` entre fotogramas consecutivos > **26** |
 | sin congelados | no más de 3 fotogramas con `Δluma < 0,05` (C3), **excluida la cola de `FADE_SALIDA = 0,6` s**: el fundido a negro que permite C5 congela el cuadro a propósito y contarlo pondría a las dos reglas a pelearse entre sí |
 | C¹ | `\|Δ²scale\|` del manifiesto ≤ **0,008** (medido en S001: 0,0038) |
-| contenido real (L1/L3) | en la ventana de cada llegada (0,45-1,45 s después del beat, para no puntuar el último fotograma del viaje): bbox ≥ **55 % ancho o 45 % alto** y, si el comp declaró foco para ese beat, `densidadFoco` ≥ **1,5 %** dentro de esa caja (la cobertura global se imprime pero no corta, porque un diagrama de una sola línea vertical lo llena el alto y pinta poco píxel); sin caja declarada se vuelve al criterio viejo, cobertura ≥ **1,5 %**. En todo el video, ≤ **45** fotogramas casi vacíos (cov < 1,2 %): medido **0** |
+| contenido real (L1/L3) | en la ventana de cada llegada (0,45-1,45 s después del beat, para no puntuar el último fotograma del viaje): bbox ≥ **55 % ancho o 45 % alto** y, si el comp declaró foco para ese beat, `densidadFoco` ≥ **5 %** dentro de esa caja (la cobertura global se imprime pero no corta, porque un diagrama de una sola línea vertical lo llena el alto y pinta poco píxel); sin caja declarada se vuelve al criterio de cobertura ≥ **2,5 %**. En todo el video, ≤ **45** fotogramas casi vacíos (cov < 1,2 %): medido **0** |
+| chip médico | desde 0,5 s después de que entra el chip, el píxel fuera de su caja en la franja `[CHIP_TOP, +92]` debe estar por debajo de **1,5 %** (`MAX_FUGA_CHIP`): si el dibujo se mete debajo del aviso, el aviso deja de leerse |
 | técnica | 45-59,9 s · 30 fps · 1080×1920 · yuv420p · ≤ 50 MB · −14 ±1 LUFS · pico ≤ −1,5 dBTP |
 | bucle | si `loop: true`, SSIM fotograma 0 vs último ≥ 0,98 — **todavía no implementado** |
 
