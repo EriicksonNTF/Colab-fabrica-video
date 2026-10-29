@@ -1,0 +1,60 @@
+# S016-hipn-gogica-mioclon-a-al- · validacion del cerebro
+
+- fecha: 29-Oct-2026 · intentos: 3
+- estado: **BLOQUEADO**
+
+- FALLA: beat HOOK apunta a zona inexistente ojo
+- FALLA: keyword 'dormir' no aparece en la linea del beat HOOK
+- FALLA: beat NOMBRE apunta a zona inexistente silueta
+- FALLA: keyword 'mioclonia' no aparece en la linea del beat NOMBRE
+- FALLA: beat MECANISMO apunta a zona inexistente circuito
+- FALLA: keyword 'cerebro_neural' no aparece en la linea del beat MECANISMO
+- FALLA: beat MECANISMO apunta a zona inexistente circuito
+- FALLA: keyword 'cerebro_neural' no aparece en la linea del beat MECANISMO
+- FALLA: beat DEMO apunta a zona inexistente ojo
+- FALLA: keyword 'tico_demo' no aparece en la linea del beat DEMO
+- FALLA: beat DEMO apunta a zona inexistente calma
+- FALLA: keyword 'seguro' no aparece en la linea del beat DEMO
+- FALLA: beat UTILIDAD apunta a zona inexistente calma
+- FALLA: keyword 'seguro' no aparece en la linea del beat UTILIDAD
+- FALLA: beat UTILIDAD apunta a zona inexistente calma
+- FALLA: beat CTA apunta a zona inexistente teaser
+- FALLA: keyword 'teaser' no aparece en la linea del beat CTA
+- FALLA: pieza flash_impacto: tipo flash no esta en el registro de primitivas
+- FALLA: pieza texto_golpe_dormir: aparece=0.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza silueta_acostada: aparece=2.5 debe ser un indice de beat valido (0-8)
+- FALLA: pieza bandera_mioclonia: aparece=2.8 debe ser un indice de beat valido (0-8)
+- FALLA: pieza bandera_mioclonia: bandera sin texto
+- FALLA: pieza circuito_neural: aparece=5.0 debe ser un indice de beat valido (0-8)
+- FALLA: pieza texto_cerebro_neural: aparece=5.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza circuito_borroso: aparece=10.0 debe ser un indice de beat valido (0-8)
+- FALLA: pieza texto_cerebro_neural_2: aparece=10.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza tico_sacudida: tipo tico no esta en el registro de primitivas
+- FALLA: pieza texto_tico_demo: aparece=15.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza tico_paz: tipo tico no esta en el registro de primitivas
+- FALLA: pieza texto_seguro: aparece=20.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza tico_duerme_noche: tipo tico no esta en el registro de primitivas
+- FALLA: pieza texto_contexto: aparece=25.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza iconos_cafe_reloj: aparece=30.0 debe ser un indice de beat valido (0-8)
+- FALLA: pieza mano_agua_arrugada: aparece=45.0 debe ser un indice de beat valido (0-8)
+- FALLA: pieza flash_impacto: tipo flash no esta en el registro de primitivas
+- FALLA: pieza texto_golpe_dormir: aparece=0.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza silueta_acostada: aparece=2.5 debe ser un indice de beat valido (0-8)
+- FALLA: pieza bandera_mioclonia: aparece=2.8 debe ser un indice de beat valido (0-8)
+- FALLA: pieza bandera_mioclonia: bandera sin texto
+- FALLA: pieza circuito_neural: aparece=5.0 debe ser un indice de beat valido (0-8)
+- FALLA: pieza texto_cerebro_neural: aparece=5.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza circuito_borroso: aparece=10.0 debe ser un indice de beat valido (0-8)
+- FALLA: pieza texto_cerebro_neural_2: aparece=10.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza tico_sacudida: tipo tico no esta en el registro de primitivas
+- FALLA: pieza texto_tico_demo: aparece=15.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza tico_paz: tipo tico no esta en el registro de primitivas
+- FALLA: pieza texto_seguro: aparece=20.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza tico_duerme_noche: tipo tico no esta en el registro de primitivas
+- FALLA: pieza texto_contexto: aparece=25.2 debe ser un indice de beat valido (0-8)
+- FALLA: pieza iconos_cafe_reloj: aparece=30.0 debe ser un indice de beat valido (0-8)
+- FALLA: pieza mano_agua_arrugada: aparece=45.0 debe ser un indice de beat valido (0-8)
+- FALLA: claim C1 (url): https://www.sleepfoundation.org/sleep-myths/hypnic-jump -> HTTP Error 404: Not Found
+- FALLA: claim C2 (url): https://www.ninds.nih.gov/health-information/disorders/hypnic-jerks -> HTTP Error 403: Forbidden
+- FALLA: claim C3 (url): https://medlineplus.gov/spanish/sleepdisorders/insomnio.html -> HTTP Error 404: Not Found
+- FALLA: el guion se sale de la ventana de 60 s

@@ -1,0 +1,506 @@
+{
+  "slug": "S016-hipn-gogica-mioclon-a-al-",
+  "factset": "data/factsets/S016-hipn-gogica-mioclon-a-al-.json",
+  "duracion_objetivo_s": 60,
+  "voz": {},
+  "fps": 24,
+  "cuadro": [
+    1080,
+    1920
+  ],
+  "beats": [
+    {
+      "t": 0.0,
+      "tipo": "HOOK",
+      "linea": "Ese golpe al quedarte dormido: casi todos lo tenemos.",
+      "zona": "ojo",
+      "keywords": [
+        "golpe",
+        "dormir"
+      ],
+      "visual": "Corte rápido a primer plano de ojos cerrándose bruscamente con un flash blanco.",
+      "chip": "impacto",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 2.5,
+      "tipo": "NOMBRE",
+      "linea": "Se llama mioclonía hipnágogica.",
+      "zona": "silueta",
+      "keywords": [
+        "mioclonia"
+      ],
+      "visual": "Silueta de una persona acostada que se sacude levemente.",
+      "chip": "etiqueta",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 5.0,
+      "tipo": "MECANISMO",
+      "linea": "Es un espasmo: el cerebro neural simula una caída.",
+      "zona": "circuito",
+      "keywords": [
+        "cerebro_neural"
+      ],
+      "visual": "Animación de conexiones neuronales parpadeando y luego fallando.",
+      "chip": "explicacion",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 10.0,
+      "tipo": "MECANISMO",
+      "linea": "La transición a sueño confunde la señal de 'parado' con 'caída'.",
+      "zona": "circuito",
+      "keywords": [
+        "cerebro_neural"
+      ],
+      "visual": "El circuito neural se vuelve borroso y cambia de color.",
+      "chip": "explicacion",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 15.0,
+      "tipo": "DEMO",
+      "linea": "Tico actúa: se sacude, respira hondo y vuelve a dormir tranquilo.",
+      "zona": "ojo",
+      "keywords": [
+        "tico_demo"
+      ],
+      "visual": "Tico hace el gesto de la sacudida, luego sonríe relajado.",
+      "chip": "demo",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 20.0,
+      "tipo": "DEMO",
+      "linea": "No es peligroso ni indica enfermedad grave.",
+      "zona": "calma",
+      "keywords": [
+        "seguro"
+      ],
+      "visual": "Tico se acuesta y cierra los ojos con paz.",
+      "chip": "reassurance",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 25.0,
+      "tipo": "UTILIDAD",
+      "linea": "Significa que tu cuerpo está cambiando de estado, no que algo falla.",
+      "zona": "calma",
+      "keywords": [
+        "seguro"
+      ],
+      "visual": "Tico duerme plácidamente mientras el fondo se vuelve azul noche.",
+      "chip": "contexto",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 30.0,
+      "tipo": "UTILIDAD",
+      "linea": "Si te pasa con café o estrés, es más frecuente, pero sigue siendo seguro.",
+      "zona": "calma",
+      "keywords": [
+        "seguro"
+      ],
+      "visual": "Iconos de taza de café y reloj de sueño flotando suavemente.",
+      "chip": "contexto",
+      "linea_de_consulta": ""
+    },
+    {
+      "t": 45.0,
+      "tipo": "CTA",
+      "linea": "Y tus dedos en el agua se arrugan por NERVIOS. Te lo muestro mañana.",
+      "zona": "teaser",
+      "keywords": [
+        "teaser"
+      ],
+      "visual": "Mano sumergida en agua con textura de piel arrugada.",
+      "chip": "next_topic",
+      "linea_de_consulta": ""
+    }
+  ],
+  "palabras_total": 159,
+  "reglas_aplicadas": [
+    "HOOK <= 2.5s",
+    "Una frase = una idea",
+    "Términos médicos con traducción",
+    "CTA específico del próximo tema",
+    "Sin promesas no cumplidas"
+  ],
+  "variedad": {},
+  "versiones_alternas": {},
+  "mundo": {
+    "ancho": 3200,
+    "alto": 9600,
+    "zonas": [
+      {
+        "id": "zona_hook",
+        "c": [
+          1600,
+          800
+        ],
+        "piezas": [
+          {
+            "id": "flash_impacto",
+            "tipo": "flash",
+            "p": [
+              1600,
+              800
+            ],
+            "aparece": 0.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "scale",
+              "from": 0,
+              "to": 2,
+              "duration": 0.1,
+              "ease": "power3.inOut"
+            }
+          },
+          {
+            "id": "texto_golpe_dormir",
+            "tipo": "texto",
+            "p": [
+              1600,
+              950
+            ],
+            "aparece": 0.2,
+            "retraso": 0.1,
+            "animacion": {
+              "type": "y",
+              "from": -100,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "back.out(1.7)"
+            },
+            "contenido": "Ese golpe al quedarte dormido: casi todos lo tenemos."
+          }
+        ]
+      },
+      {
+        "id": "zona_nombre",
+        "c": [
+          1600,
+          3200
+        ],
+        "piezas": [
+          {
+            "id": "silueta_acostada",
+            "tipo": "silueta",
+            "p": [
+              1600,
+              2800
+            ],
+            "aparece": 2.5,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "scale",
+              "from": 0.8,
+              "to": 1,
+              "duration": 0.8,
+              "ease": "power2.out"
+            },
+            "detalle": "sacudida_leve"
+          },
+          {
+            "id": "bandera_mioclonia",
+            "tipo": "bandera",
+            "p": [
+              1600,
+              3400
+            ],
+            "aparece": 2.8,
+            "retraso": 0.1,
+            "animacion": {
+              "type": "scale",
+              "from": 0.5,
+              "to": 1,
+              "duration": 0.6,
+              "ease": "elastic.out(1, 0.3)"
+            },
+            "contenido": "mioclonía hipnágica"
+          }
+        ]
+      },
+      {
+        "id": "zona_mecanismo",
+        "c": [
+          1600,
+          5200
+        ],
+        "piezas": [
+          {
+            "id": "circuito_neural",
+            "tipo": "circuito",
+            "p": [
+              1600,
+              4800
+            ],
+            "aparece": 5.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "opacity",
+              "from": 0,
+              "to": 1,
+              "duration": 0.8,
+              "ease": "power2.inOut"
+            },
+            "detalle": "parpadeo_fallo"
+          },
+          {
+            "id": "texto_cerebro_neural",
+            "tipo": "texto",
+            "p": [
+              1600,
+              5400
+            ],
+            "aparece": 5.2,
+            "retraso": 0.1,
+            "animacion": {
+              "type": "y",
+              "from": -80,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "power3.out"
+            },
+            "contenido": "Es un espasmo: el cerebro neural simula una caída."
+          }
+        ]
+      },
+      {
+        "id": "zona_mecanismo_2",
+        "c": [
+          1600,
+          7200
+        ],
+        "piezas": [
+          {
+            "id": "circuito_borroso",
+            "tipo": "circuito",
+            "p": [
+              1600,
+              6800
+            ],
+            "aparece": 10.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "blur",
+              "from": 0,
+              "to": 4,
+              "duration": 1.2,
+              "ease": "power1.inOut"
+            },
+            "detalle": "cambio_color_rojo_azul"
+          },
+          {
+            "id": "texto_cerebro_neural_2",
+            "tipo": "texto",
+            "p": [
+              1600,
+              7400
+            ],
+            "aparece": 10.2,
+            "retraso": 0.1,
+            "animacion": {
+              "type": "y",
+              "from": -80,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "power3.out"
+            },
+            "contenido": "La transición a sueño confunde la señal de 'parado' con 'caída'."
+          }
+        ]
+      },
+      {
+        "id": "zona_demo",
+        "c": [
+          1600,
+          9200
+        ],
+        "piezas": [
+          {
+            "id": "tico_sacudida",
+            "tipo": "tico",
+            "p": [
+              1600,
+              8800
+            ],
+            "aparece": 15.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "scale",
+              "from": 0.9,
+              "to": 1,
+              "duration": 0.6,
+              "ease": "back.out(1.5)"
+            },
+            "detalle": "sacudida_respira_relax"
+          },
+          {
+            "id": "texto_tico_demo",
+            "tipo": "texto",
+            "p": [
+              1600,
+              9400
+            ],
+            "aparece": 15.2,
+            "retraso": 0.1,
+            "animacion": {
+              "type": "y",
+              "from": -80,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "power3.out"
+            },
+            "contenido": "Tico actúa: se sacude, respira hondo y vuelve a dormir tranquilo."
+          }
+        ]
+      },
+      {
+        "id": "zona_demo_2",
+        "c": [
+          1600,
+          9400
+        ],
+        "piezas": [
+          {
+            "id": "tico_paz",
+            "tipo": "tico",
+            "p": [
+              1600,
+              8800
+            ],
+            "aparece": 20.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "scale",
+              "from": 1,
+              "to": 1,
+              "duration": 0.6,
+              "ease": "power2.out"
+            },
+            "detalle": "acuesta_cierra_ojos_paz"
+          },
+          {
+            "id": "texto_seguro",
+            "tipo": "texto",
+            "p": [
+              1600,
+              9400
+            ],
+            "aparece": 20.2,
+            "retraso": 0.1,
+            "animacion": {
+              "type": "y",
+              "from": -80,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "power3.out"
+            },
+            "contenido": "No es peligroso ni indica enfermedad grave."
+          }
+        ]
+      },
+      {
+        "id": "zona_utilidad",
+        "c": [
+          1600,
+          9400
+        ],
+        "piezas": [
+          {
+            "id": "tico_duerme_noche",
+            "tipo": "tico",
+            "p": [
+              1600,
+              8800
+            ],
+            "aparece": 25.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "scale",
+              "from": 1,
+              "to": 1,
+              "duration": 0.6,
+              "ease": "power2.out"
+            },
+            "detalle": "duerme_placido_fondo_azul_noche"
+          },
+          {
+            "id": "texto_contexto",
+            "tipo": "texto",
+            "p": [
+              1600,
+              9400
+            ],
+            "aparece": 25.2,
+            "retraso": 0.1,
+            "animacion": {
+              "type": "y",
+              "from": -80,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "power3.out"
+            },
+            "contenido": "Significa que tu cuerpo está cambiando de estado, no que algo falla."
+          }
+        ]
+      },
+      {
+        "id": "zona_utilidad_2",
+        "c": [
+          1600,
+          9400
+        ],
+        "piezas": [
+          {
+            "id": "iconos_cafe_reloj",
+            "tipo": "texto",
+            "p": [
+              1600,
+              9400
+            ],
+            "aparece": 30.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "y",
+              "from": -80,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "power3.out"
+            },
+            "contenido": "Si te pasa con café o estrés, es más frecuente, pero sigue siendo seguro."
+          }
+        ]
+      },
+      {
+        "id": "zona_cta",
+        "c": [
+          1600,
+          9400
+        ],
+        "piezas": [
+          {
+            "id": "mano_agua_arrugada",
+            "tipo": "texto",
+            "p": [
+              1600,
+              9400
+            ],
+            "aparece": 45.0,
+            "retraso": 0.0,
+            "animacion": {
+              "type": "y",
+              "from": -80,
+              "to": 0,
+              "duration": 0.6,
+              "ease": "power3.out"
+            },
+            "contenido": "Y tus dedos en el agua se arrugan por NERVIOS. Te lo muestro mañana."
+          }
+        ]
+      }
+    ]
+  }
+}

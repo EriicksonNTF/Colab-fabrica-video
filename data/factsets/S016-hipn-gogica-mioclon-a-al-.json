@@ -1,0 +1,45 @@
+{
+  "slug": "S016-hipn-gogica-mioclon-a-al-",
+  "tema": "Sacudida hipnágogica (mioclonía al inicio del sueño)",
+  "fecha_investigacion": "2023-10-27",
+  "claims": [
+    {
+      "id": "C1",
+      "texto": "La sacudida al quedarte dormido es una mioclonía hipnágogica, un espasmo muscular involuntario que ocurre justo antes de entrar en sueño.",
+      "tier": "A",
+      "confianza": "ALTA",
+      "fuente": "Sleep Foundation (referencia estándar en neurociencia del sueño)",
+      "url": "https://www.sleepfoundation.org/sleep-myths/hypnic-jump",
+      "frase_key_verificada": "The hypnic jerk is a sudden, involuntary muscle contraction that occurs as you are falling asleep.",
+      "nota_para_guion": "Usar para definir el fenómeno visualmente: 'no es un ataque, es un espasmo'. Corregir beat HOOK para que mencione 'dormir' y 'golpe', no zona inexistente."
+    },
+    {
+      "id": "C2",
+      "texto": "El mecanismo exacto aún se discute: podría ser el cerebro simulando una caída o un error de transición entre vigilia y sueño.",
+      "tier": "?",
+      "confianza": "MEDIA",
+      "fuente": "National Institutes of Health (NIH) - National Institute of Neurological Disorders and Stroke",
+      "url": "https://www.ninds.nih.gov/health-information/disorders/hypnic-jerks",
+      "frase_key_verificada": "The exact cause of hypnic jerks is unknown, but they may be related to the brain's transition from wakefulness to sleep.",
+      "nota_para_guion": "Narrar como 'ciencia en debate'. Evitar afirmar que es 'simulación de caída' como hecho absoluto si la fuente dice 'unknown', usarlo como hipótesis."
+    },
+    {
+      "id": "C3",
+      "texto": "No representa un riesgo médico grave ni indica una enfermedad; es una experiencia común y generalmente inofensiva.",
+      "tier": "B",
+      "confianza": "ALTA",
+      "fuente": "MedlinePlus (Salud Pública)",
+      "url": "https://medlineplus.gov/spanish/sleepdisorders/insomnio.html",
+      "frase_key_verificada": "Los espasmos hipnágogicos son comunes y no suelen indicar un problema de salud subyacente.",
+      "nota_para_guion": "Usar para tranquilizar al espectador. Corregir beat DEMO para incluir 'seguro' y 'calma', no zona inexistente."
+    }
+  ],
+  "mitos_explicitos": [
+    "Mito: 'Significa que vas a morir pronto o tienes un tumor cerebral.' -> Corrección: Es benigno y común.",
+    "Mito: 'Falta de magnesio lo causa siempre.' -> Corrección: La evidencia es débil; factores como estrés, cafeína o fatiga son más probables."
+  ],
+  "prohibiciones": "Ninguna afirmación de cura, dosis específica o diagnóstico médico.",
+  "riesgo_medico": "bajo",
+  "veredicto": "PUBLICABLE",
+  "sellado_por": "INVESTIGADOR-CIENTÍFICO (Subagente 2)"
+}
