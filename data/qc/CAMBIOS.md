@@ -326,3 +326,24 @@ pero es código que no necesitamos).
   `math`, `json`, `re` y `pathlib`. El que sí usa numpy es `qc.py`, y corre en GitHub Actions.
 - La espera del server pasó de `time.sleep(8)` a un sondeo real de `/api/version` hasta 90 s, y si no
   responde imprime `tail -20 /tmp/ollama.log`. Un sleep fijo falla en sesiones lentas sin decir por qué.
+
+### 25. El token ya no bloquea el clon: el repo es público y el assert mentía
+**Motivo:** segundo error en Colab, ahora en la celda 1:
+`AssertionError: falta el secret GH_TOKEN en Colab`. Tres cosas distintas se tapaban entre sí:
+1. `google.colab.userdata.get()` **devuelve `None`** cuando el secret no existe; no lanza. El
+   `try/except` que había no atrapaba nada y el `assert` sí. El mensaje culpaba al token cuando el
+   problema real podía ser que el secret nunca se creó o que no se le dio *Acceso del notebook*.
+2. El repo es **público**: `git ls-remote https://github.com/EriicksonNTF/Colab-fabrica-video.git`
+   devuelve `refs/heads/main` sin credenciales. O sea, **el clon nunca necesitó el token**; sólo el
+   `push` de la celda 4 lo necesita. Exigirlo antes del clon bloqueaba 25 min de trabajo por un
+   requisito que no existía en ese punto.
+3. El token se escribía en la URL del `clone` con `check=True`; si el clone fallaba, el traceback de
+   Python imprimía el comando **con el token adentro**.
+**Efecto:** la celda 1 ahora (a) clona en anónimo y sólo tokeniza el remoto si hay token, (b) si no
+hay secret lo pide con `getpass` —no se imprime en pantalla, no queda en el `.ipynb`, no va al
+historial—, (c) valida el token contra `GET /api/v3/repos/...` y exige `permissions.push` **antes** de
+bajar el cerebro, (d) todo `git` pasa por `_git()`, que captura la salida: el token nunca aparece en
+un traceback.
+**Regla que sale de acá:** un `assert` sobre un valor de API opcional tiene que decir *qué* falta y
+*cómo se arregla*. `userdata.get()` sin excepción + `assert` produce un error que acusa al usuario de
+algo que puede no haber hecho mal.

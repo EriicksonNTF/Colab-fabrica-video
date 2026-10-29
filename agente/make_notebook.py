@@ -44,8 +44,13 @@ CELDA_1 = '''# =================================================================
 # ni unidad de systemd (Colab no arranca con systemd).
 # Ademas se quito "-U numpy": subia numpy a 2.5.x y rompia numba 0.61.2.
 # El cerebro no usa numpy (build_comp solo importa math/json/re/pathlib).
+# PARCHE 28-oct: el repo es PUBLICO, asi que el clon no necesita token; el token
+# solo hace falta para el push de la celda 4. userdata.get() devuelve None cuando
+# el secret no existe (no lanza excepcion), y eso mataba el assert. Ahora el
+# token es opcional para clonar, se pide por getpass si falta (no se imprime ni
+# se guarda) y se valida contra la API antes de gastar 25 min de GPU.
 # ============================================================================
-import os, pathlib, subprocess, time
+import getpass, os, pathlib, subprocess, time
 
 REPO_URL = "https://github.com/EriicksonNTF/Colab-fabrica-video.git"   # ya apunta al repo real
 RAMA     = "main"
@@ -87,18 +92,53 @@ else:
 print("bajando el cerebro (~5 GB en Q4, sin claves)...")
 subprocess.run([OLLAMA, "pull", CEREBRO], check=True)
 
-from google.colab import userdata                      # Kaggle: usar la variable de kaggle secrets
-try:
-    TOK = userdata.get("GH_TOKEN")
-except Exception:
-    TOK = os.environ.get("GH_TOKEN")                   # en Kaggle: Secrets > Add input
-assert TOK, "falta el secret GH_TOKEN en Colab"
+def _git(args, err):
+    p = subprocess.run(args, capture_output=True, text=True)
+    if p.returncode != 0:
+        raise RuntimeError(err + " | " + (p.stderr or "").strip()[-500:])
+    return p
+
+def _token():
+    try:
+        from google.colab import userdata                       # Kaggle: Secrets > Add input
+        t = (userdata.get("GH_TOKEN") or "").strip()
+        if t:
+            return t, "Colab Secrets"
+        print("Colab Secrets: el secret GH_TOKEN existe pero esta vacio.")
+    except Exception as e:
+        print("Colab Secrets no lo entrego:", type(e).__name__, str(e)[:200])
+    t = (os.environ.get("GH_TOKEN") or "").strip()
+    return (t, "variable de entorno") if t else ("", "")
+
+TOK, origen = _token()
+if not TOK:
+    print("No hay GH_TOKEN. Dos formas de arreglarlo:")
+    print("  fija : llave del panel izquierdo -> agregar GH_TOKEN -> activar 'Acceso del notebook'")
+    print("         (fine-grained, solo Contents: Read and write sobre Colab-fabrica-video)")
+    print("  ahora: pegalo abajo; no se muestra en pantalla ni queda guardado en el notebook")
+    TOK = (getpass.getpass("GH_TOKEN: ") or "").strip()
+
+if TOK:
+    assert TOK.startswith(("ghp_", "github_pat_")), "eso no parece un token de GitHub"
+    import json as _json, urllib.request
+    req = urllib.request.Request("https://api.github.com/repos/EriicksonNTF/Colab-fabrica-video",
+                                 headers={"Authorization": "Bearer " + TOK,
+                                          "Accept": "application/vnd.github+json"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            perms = _json.load(r).get("permissions", {})
+    except Exception as e:
+        raise RuntimeError("el token no sirvio: " + type(e).__name__ + " " + str(e)[:200])
+    assert perms.get("push"), "el token llego pero no tiene escritura (Contents: Read and write)"
+    print("token ok para el repo (origen:", origen + ")")
+    os.environ["GH_TOKEN"] = TOK
 
 if not pathlib.Path("fabrica").exists():
-    url = REPO_URL.replace("https://", f"https://oauth2:{TOK}@")
-    subprocess.run(["git", "clone", "--depth", "1", "-b", RAMA, url, "fabrica"],
-                   check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # sin eco del token
+    _git(["git", "clone", "--depth", "1", "-b", RAMA, REPO_URL, "fabrica"], "no se pudo clonar el repo")
 %cd fabrica
+if TOK:   # la celda 4 empuja por el remoto: sin esto un clon anonimo no puede hacer push
+    _git(["git", "remote", "set-url", "origin",
+          REPO_URL.replace("https://", "https://oauth2:" + TOK + "@")], "no se pudo configurar el remoto")
 subprocess.run(["git", "config", "user.name", "Ticomental"], check=True)
 subprocess.run(["git", "config", "user.email", "ticomental@users.noreply.github.com"], check=True)
 print("listo:", subprocess.run([OLLAMA, "list"], capture_output=True, text=True).stdout)
